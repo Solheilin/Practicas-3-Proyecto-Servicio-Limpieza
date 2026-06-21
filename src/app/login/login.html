@@ -1,0 +1,118 @@
+<header class="hero">
+
+  <nav class="navbar">
+    <div class="logo">
+      <h2>Limpieza</h2>
+    </div>
+
+    <div class="menu">
+      <a routerLink="/login">Acceder</a>
+
+      <button class="btn-empleo">
+        ¿Buscas empleo?
+      </button>
+    </div>
+  </nav>
+
+  <div class="hero-content">
+    <h1>Encontrá Ayuda de Confianza</h1>
+
+  </div>
+
+</header>
+
+<div class="login-container">
+
+  <form (ngSubmit)="login()">
+
+    <h2>Iniciar Sesión</h2>
+
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        #emailInput="ngModel"
+       required
+        email>
+
+        @if(emailInput.invalid && emailInput.touched){
+
+  @if(emailInput.errors?.['required']){
+    <small class="error">
+      El correo es obligatorio
+    </small>
+  }
+
+  @if(emailInput.errors?.['email']){
+    <small class="error">
+      Debe ingresar un correo válido (ejemplo@correo.com)
+    </small>
+  }
+
+}
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input
+        id="password"
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        required>
+    </div>
+
+    <button type="submit">
+      Ingresar
+    </button>
+
+   
+    <div class="register-link">
+      <p>¿No tienes una cuenta?</p>
+      <a routerLink="/registro">Registrarse</a>
+    </div>
+
+  </form>
+
+</div>
+<footer class="footer">
+
+  <div class="footer-contenido">
+
+    <div class="footer-logo">
+      <h2>Limpieza</h2>
+      <p>
+        Conectamos hogares con empleadas domésticas de confianza.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <h3>Enlaces</h3>
+
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/empleadas">Buscar empleadas</a>
+      <a routerLink="/solicitud-servicio">Solicitar servicio</a>
+      <a routerLink="/login">Acceder</a>
+    </div>
+
+    <div class="footer-contacto">
+      <h3>Contacto</h3>
+
+      <p>📧 contacto@limpieza.com</p>
+      <p>📞 +54 11 61619969</p>
+      <p>📍 Argentina</p>
+    </div>
+
+  </div>
+
+  <div class="footer-copy">
+    <p>© 2026 Limpieza. Todos los derechos reservados.</p>
+  </div>
+
+</footer>
+
+  
+
+

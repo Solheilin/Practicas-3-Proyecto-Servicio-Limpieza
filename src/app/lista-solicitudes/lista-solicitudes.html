@@ -1,0 +1,111 @@
+<header class="hero">
+
+  <nav class="navbar">
+    <div class="logo">
+     
+    </div>
+
+  </nav>
+
+  <div class="hero-content">
+    <h1>Aca podras encontrar trabajos disponibles</h1>
+
+  </div>
+
+</header>
+<div class="contenedor">
+
+    <div class="cards">
+
+        @if(solicitudes.length > 0){
+
+           @for (solicitud of solicitudes; track solicitud; let i = $index) {
+
+                <div class="card">
+
+                    <div class="cabecera-card">
+
+                        <h3>{{ solicitud.nombre }} {{ solicitud.apellido }}</h3>
+
+                        <p>{{ solicitud.frecuencia }}</p>
+
+                        <span class="verificado">
+                            📅 {{ solicitud.fecha }}
+                        </span>
+
+                    </div>
+
+                    <div class="contenido-card">
+
+                        <p><strong>Correo:</strong> {{ solicitud.correo }}</p>
+
+                        <p><strong>Teléfono:</strong> {{ solicitud.telefono }}</p>
+
+                        <p><strong>Dirección:</strong> {{ solicitud.direccion }}</p>
+
+                        <p><strong>Horario:</strong> {{ solicitud.horario }}</p>
+
+                        <p><strong>Requerimientos:</strong></p>
+
+                        <blockquote>
+                            {{ solicitud.requerimientos }}
+                        </blockquote>
+
+                        <hr>
+
+                        <h4>Servicios</h4>
+
+                        <ul>
+
+                            @if(solicitud.planchar){
+                                <li>✔ Planchar</li>
+                            }
+
+                            @if(solicitud.lavar){
+                                <li>✔ Lavar</li>
+                            }
+
+                            @if(solicitud.cocina){
+                                <li>✔ Cocina</li>
+                            }
+
+                            @if(solicitud.cuidadoNinos){
+                                <li>✔ Cuidado de niños</li>
+                            }
+
+                            @if(solicitud.camaAdentro){
+                                <li>✔ Cama adentro</li>
+                            }
+
+                        </ul>
+                        <div class="acciones-card">
+
+   <button class="btn-tomar" (click)="tomarTrabajo(i)">
+  Tomar trabajo
+</button>
+
+</div>
+
+                    </div>
+
+                </div>
+
+            }
+            
+
+        } @else {
+
+            <p>No hay solicitudes registradas.</p>
+
+        }
+
+    </div>
+
+
+    <div class="footer-botones">
+
+        
+
+    </div>
+
+</div>

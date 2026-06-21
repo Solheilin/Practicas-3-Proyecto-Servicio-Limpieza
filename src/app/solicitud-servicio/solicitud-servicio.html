@@ -1,0 +1,318 @@
+<header class="hero">
+
+  <nav class="navbar">
+    <div class="logo">
+      <h2>Limpieza</h2>
+    </div>
+
+    
+  </nav>
+
+  <div class="hero-content">
+    <h1>Encontrá Ayuda de Confianza</h1>
+
+  </div>
+
+</header>
+
+<div class="formulario-container">
+   
+
+  <form #formulario="ngForm" (ngSubmit)="contactar()">
+
+    <h1>Solicitud de Servicio</h1>
+
+     <div class="campo">
+  <label>¿Cada cuánto necesitas una empleada?</label>
+
+  <select
+    name="frecuencia"
+    [(ngModel)]="frecuencia"
+    #frecuenciaInput="ngModel"
+    required>
+
+    <option value="">Seleccione una opción</option>
+
+    <option value="De lunes a viernes">
+      De lunes a viernes
+    </option>
+
+    <option value="Cada 15 días">
+      Cada 15 días
+    </option>
+
+    <option value="Única vez">
+      Única vez
+    </option>
+
+  </select>
+
+  @if(frecuenciaInput.invalid && frecuenciaInput.touched){
+    <small class="error">
+      Debe seleccionar una frecuencia
+    </small>
+  }
+
+</div>
+
+    <div class="campo">
+  <label>Nombre</label>
+
+  <input
+    type="text"
+    name="nombre"
+    [(ngModel)]="nombre"
+    #nombreInput="ngModel"
+    required>
+
+  @if(nombreInput.invalid && nombreInput.touched){
+    <small class="error">
+      El nombre es obligatorio
+    </small>
+  }
+
+</div>
+
+    <div class="campo">
+  <label>Apellido</label>
+
+  <input
+    type="text"
+    name="apellido"
+    [(ngModel)]="apellido"
+    #apellidoInput="ngModel"
+    required>
+
+  @if(apellidoInput.invalid && apellidoInput.touched){
+    <small class="error">
+      El apellido es obligatorio
+    </small>
+  }
+
+</div>
+
+
+   <div class="campo">
+  <label>Dirección</label>
+
+  <input
+    type="text"
+    name="direccion"
+    [(ngModel)]="direccion"
+    #direccionInput="ngModel"
+    required>
+
+  @if(direccionInput.invalid && direccionInput.touched){
+    <small class="error">
+      La dirección es obligatoria
+    </small>
+  }
+
+</div>
+
+    <div class="campo">
+  <label>Requerimientos del servicio</label>
+
+  <textarea
+    rows="5"
+    name="requerimientos"
+    [(ngModel)]="requerimientos"
+    #requerimientosInput="ngModel"
+    required>
+  </textarea>
+
+  @if(requerimientosInput.invalid && requerimientosInput.touched){
+    <small class="error">
+      Debe ingresar los requerimientos
+    </small>
+  }
+
+</div>
+
+<div class="campo">
+  <label>Correo electrónico</label>
+
+  <input
+    type="email"
+    name="correo"
+    [(ngModel)]="correo"
+    #correoInput="ngModel"
+    required>
+
+  @if(correoInput.invalid && correoInput.touched){
+    <small class="error">
+      El correo es obligatorio
+    </small>
+  }
+</div>
+
+<div class="campo">
+  <label>Teléfono</label>
+
+  <input
+    type="tel"
+    name="telefono"
+    [(ngModel)]="telefono"
+    #telefonoInput="ngModel"
+    required>
+
+  @if(telefonoInput.invalid && telefonoInput.touched){
+    <small class="error">
+      El teléfono es obligatorio
+    </small>
+  }
+</div>
+
+    <h3>Servicios requeridos</h3>
+
+  
+
+ <div class="servicio-item">
+  <input
+    type="checkbox"
+    id="planchar"
+    name="planchar"
+    [(ngModel)]="planchar">
+<label for="planchar">planchar</label>
+ 
+</div>
+
+<div class="servicio-item">
+  <input
+    type="checkbox"
+    id="lavar"
+    name="lavar"
+    [(ngModel)]="lavar">
+<label for="lavar">lavar</label>
+
+</div>
+
+<div class="servicio-item">
+  <input
+    type="checkbox"
+    id="cocina"
+    name="cocina"
+    [(ngModel)]="cocina">
+
+  <label for="cocina">Cocina</label>
+</div>
+
+<div class="servicio-item">
+  <input
+    type="checkbox"
+    id="cuidadoNinos"
+    name="cuidadoNinos"
+    [(ngModel)]="cuidadoNinos">
+
+  <label for="cuidadoNinos">Cuidado de niños</label>
+</div>
+
+<div class="servicio-item">
+  <input
+    type="checkbox"
+    id="camaAdentro"
+    name="camaAdentro"
+    [(ngModel)]="camaAdentro">
+
+  <label for="camaAdentro">Cama adentro</label>
+</div>
+
+
+<div class="campo">
+  <label>Día solicitado</label>
+
+  <input
+    type="date"
+    name="fecha"
+    [(ngModel)]="fecha"
+    #fechaInput="ngModel"
+    required>
+
+  @if(fechaInput.invalid && fechaInput.touched){
+    <small class="error">
+      Debe seleccionar una fecha
+    </small>
+  }
+
+</div>
+
+
+
+    <div class="campo">
+  <label>Horario preferido</label>
+
+  <select
+    name="horario"
+    [(ngModel)]="horario"
+    #horarioInput="ngModel"
+    required>
+
+    <option value="">Seleccione un horario</option>
+    <option value="Mañana">Mañana</option>
+    <option value="Tarde">Tarde</option>
+    <option value="Noche">Noche</option>
+    <option value="Todo el día">Todo el día</option>
+
+  </select>
+
+  @if(horarioInput.invalid && horarioInput.touched){
+    <small class="error">
+      Debe seleccionar un horario
+    </small>
+  }
+</div>
+
+    
+<button
+  type="submit"
+  class="btn-contactar"
+  [disabled]="formulario.invalid">
+  Enviar Solicitud
+</button>
+
+    <button
+  type="button"
+  routerLink="/"
+  class="btn-volver">
+  Volver al Inicio
+</button>
+
+  </form>
+
+</div>
+
+<footer class="footer">
+
+  <div class="footer-contenido">
+
+    <div class="footer-logo">
+      <h2>Limpieza</h2>
+      <p>
+        Conectamos hogares con empleadas domésticas de confianza.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <h3>Enlaces</h3>
+
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/empleadas">Buscar empleadas</a>
+      <a routerLink="/solicitud-servicio">Solicitar servicio</a>
+      <a routerLink="/login">Acceder</a>
+    </div>
+
+    <div class="footer-contacto">
+      <h3>Contacto</h3>
+
+      <p>📧 contacto@limpieza.com</p>
+      <p>📞 +54 11 61619969</p>
+      <p>📍 Argentina</p>
+    </div>
+
+  </div>
+
+  <div class="footer-copy">
+    <p>© 2026 Limpieza. Todos los derechos reservados.</p>
+  </div>
+
+</footer>

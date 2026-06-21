@@ -1,0 +1,203 @@
+<header class="hero">
+
+  <nav class="navbar">
+    <div class="logo">
+      <h2>Limpieza</h2>
+    </div>
+
+    <div class="menu">
+      <a routerLink="/login">Acceder</a>
+
+      <button class="btn-empleo">
+        ¿Buscas empleo?
+      </button>
+    </div>
+  </nav>
+
+  <div class="hero-content">
+    <h1>Encontrá Ayuda de Confianza</h1>
+
+  </div>
+
+</header>
+<div class="login-container">
+
+  <form #registroForm="ngForm" (ngSubmit)="registrar()">
+
+    <h2>Crear Cuenta</h2>
+    <div class="registro-empleada-link">
+    <p>¿Quieres trabajar con nosotros?</p>
+
+    <a routerLink="/registro-empleada">
+        Registrarme como empleada
+    </a>
+</div>
+
+   <div class="form-group">
+  <label>Nombre</label>
+
+  <input
+    type="text"
+    name="nombre"
+    [(ngModel)]="nombre"
+    #nombreInput="ngModel"
+    required>
+
+  @if(nombreInput.invalid && nombreInput.touched){
+    <small class="error">
+      El nombre es obligatorio
+    </small>
+  }
+</div>
+
+    <div class="form-group">
+  <label>Apellido</label>
+
+  <input
+    type="text"
+    name="apellido"
+    [(ngModel)]="apellido"
+    #apellidoInput="ngModel"
+    required>
+
+  @if(apellidoInput.invalid && apellidoInput.touched){
+    <small class="error">
+      El apellido es obligatorio
+    </small>
+  }
+</div>
+
+
+    <div class="form-group">
+  <label>Teléfono</label>
+
+  <input
+    type="number"
+    name="telefono"
+    [(ngModel)]="telefono"
+    #telefonoInput="ngModel"
+    required>
+
+  @if(telefonoInput.invalid && telefonoInput.touched){
+    <small class="error">
+      El teléfono es obligatorio
+    </small>
+  }
+</div>
+
+
+   <div class="form-group">
+  <label>Dirección</label>
+
+  <input
+    type="text"
+    name="direccion"
+    [(ngModel)]="direccion"
+    #direccionInput="ngModel"
+    required>
+
+  @if(direccionInput.invalid && direccionInput.touched){
+    <small class="error">
+      La dirección es obligatoria
+    </small>
+  }
+</div>
+    
+
+    <div class="form-group">
+  <label>Correo electrónico</label>
+
+  <input
+    type="email"
+    name="email"
+    [(ngModel)]="email"
+    #emailInput="ngModel"
+    required
+    email>
+
+  @if(emailInput.invalid && emailInput.touched){
+
+    @if(emailInput.errors?.['required']){
+      <small class="error">
+        El correo es obligatorio
+      </small>
+    }
+
+    @if(emailInput.errors?.['email']){
+      <small class="error">
+        Debe ingresar un correo válido (ejemplo@correo.com)
+      </small>
+    }
+
+  }
+</div>
+
+    <div class="form-group">
+  <label>Contraseña</label>
+
+  <input
+    type="password"
+    name="password"
+    [(ngModel)]="password"
+    #passwordInput="ngModel"
+    required
+    minlength="6">
+
+  @if(passwordInput.invalid && passwordInput.touched){
+    <small class="error">
+      La contraseña debe tener al menos 6 caracteres
+    </small>
+  }
+</div>
+
+    <button
+  type="submit"
+  [disabled]="registroForm.invalid">
+  Registrarse
+</button>
+
+    <div class="login-link">
+      <p>¿Ya tienes una cuenta?</p>
+      <a routerLink="/">Volver al Login</a>
+    </div>
+
+  </form>
+
+  
+
+</div>
+<footer class="footer">
+
+  <div class="footer-contenido">
+
+    <div class="footer-logo">
+      <h2>Limpieza</h2>
+      <p>
+        Conectamos hogares con empleadas domésticas de confianza.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <h3>Enlaces</h3>
+
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/empleadas">Buscar empleadas</a>
+      <a routerLink="/solicitud-servicio">Solicitar servicio</a>
+      <a routerLink="/login">Acceder</a>
+    </div>
+
+    <div class="footer-contacto">
+      <h3>Contacto</h3>
+
+      <p>📧 contacto@limpieza.com</p>
+      <p>📞 +54 11 61619969</p>
+      <p>📍 Argentina</p>
+    </div>
+
+  </div>
+
+  <div class="footer-copy">
+    <p>© 2026 Limpieza. Todos los derechos reservados.</p>
+  </div>
+
+</footer>

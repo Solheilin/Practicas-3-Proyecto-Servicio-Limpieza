@@ -1,0 +1,140 @@
+<header class="hero">
+
+  <nav class="navbar">
+    <div class="logo">
+      <h2>Limpieza</h2>
+    </div>
+
+    
+  </nav>
+
+  <div class="hero-content">
+    <h1>Encontrá Ayuda de Confianza</h1>
+
+  </div>
+
+</header>
+
+<div class="acciones-superiores">
+</div>
+
+<div class="contenedor">
+
+    <h1>Profesionales en Argentina</h1>
+
+    <div class="barra-superior">
+
+        <input
+            type="text"
+            placeholder="Buscar profesional..."
+            [(ngModel)]="textoBusqueda">
+
+
+    </div>
+
+    <div class="presupuesto">
+
+        <button
+    class="btn-presupuesto"
+    routerLink="/registro">
+    ¡Registrate para contactar con profesionales!
+</button>
+        <div class="footer-botones">
+    <button
+        routerLink="/"
+        class="btn-volver">
+        ← Volver al Inicio
+    </button>
+</div>
+
+
+    </div>
+
+    <div class="cards">
+
+        @for (profesional of profesionalesFiltrados; track profesional.nombre) {
+
+            <div class="card">
+
+                <div class="cabecera-card">
+
+                    <img
+                        [src]="'assets/usuarios/' + profesional.foto"
+                        [alt]="profesional.nombre">
+
+                    <h3>{{ profesional.nombre }}</h3>
+
+                    <p>
+                        {{ profesional.zona }}
+                        -
+                        {{ profesional.experiencia }}
+                    </p>
+
+                    <span class="verificado">
+                        ✔ Verificado y Certificado
+                    </span>
+
+                </div>
+
+                <div class="contenido-card">
+
+                    <p>{{ profesional.oficio }}</p>
+
+                    <div class="estrellas">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+
+                    <p>
+                        {{ profesional.opiniones }}
+                        opiniones
+                    </p>
+
+                    <blockquote>
+                        "{{ profesional.comentario }}"
+                    </blockquote>
+
+                </div>
+
+            </div>
+
+        }
+
+    </div>
+
+</div>
+<footer class="footer">
+
+  <div class="footer-contenido">
+
+    <div class="footer-logo">
+      <h2>Limpieza</h2>
+      <p>
+        Conectamos hogares con empleadas domésticas de confianza.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <h3>Enlaces</h3>
+
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/empleadas">Buscar empleadas</a>
+      <a routerLink="/solicitud-servicio">Solicitar servicio</a>
+      <a routerLink="/login">Acceder</a>
+    </div>
+
+    <div class="footer-contacto">
+      <h3>Contacto</h3>
+
+      <p>📧 contacto@limpieza.com</p>
+      <p>📞 +54 11 61619969</p>
+      <p>📍 Argentina</p>
+    </div>
+
+  </div>
+
+  <div class="footer-copy">
+    <p>© 2026 Limpieza. Todos los derechos reservados.</p>
+  </div>
+
+</footer>
+

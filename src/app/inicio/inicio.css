@@ -1,0 +1,269 @@
+.btn-acceder {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.btn-acceder:hover {
+    opacity: 0.9;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.hero{
+    min-height:70vh;
+    background-image:
+    linear-gradient(rgba(0,0,0,.4),
+    rgba(0,0,0,.4)),
+    url('/assets/pexels-tima-miroshnichenko-6195274.jpg');
+
+    background-size:cover;
+    background-position:center;
+    color:white;
+}
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 80px;
+}
+
+.logo h2{
+    font-size:2rem;
+}
+
+.menu{
+    display:flex;
+    align-items:center;
+    gap:30px;
+}
+
+.menu a{
+    color:white;
+    text-decoration:none;
+}
+
+.btn-empleo{
+    background:transparent;
+    border:2px solid white;
+    color:white;
+    padding:10px 20px;
+    cursor:pointer;
+}
+
+.hero-content{
+    text-align:center;
+    margin-top:120px;
+}
+
+.hero-content h1{
+    font-size:4rem;
+    margin-bottom:40px;
+}
+
+.hero-buttons{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.btn-principal,
+.btn-secundario{
+    background:white;
+    color:#39b98d;
+    border:none;
+    padding:18px 30px;
+    font-size:16px;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+.como-funciona{
+    padding:60px;
+    background:#f5f5f5;
+}
+
+.como-funciona h2{
+    text-align:center;
+    font-size:3rem;
+    margin-bottom:40px;
+}
+
+.tabs{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:50px;
+}
+
+.tabs button{
+    padding:15px 40px;
+    border:1px solid #ccc;
+    cursor:pointer;
+}
+
+.tabs .active{
+    background:#2c3e50;
+    color:white;
+}
+
+.pasos{
+    display:flex;
+    justify-content:center;
+    gap:50px;
+    flex-wrap:wrap;
+}
+
+.paso{
+    width:300px;
+    text-align:center;
+}
+
+.numero{
+    width:80px;
+    height:80px;
+    background:#2c3e50;
+    color:white;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:0 auto 20px;
+    font-size:2rem;
+    font-weight:bold;
+}
+
+.garantia {
+  background-color: #1f2d3d;
+  color: white;
+  text-align: center;
+  padding: 50px 20px;
+
+  margin-top: 50px;
+}
+
+.garantia h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+.garantia p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.incluye-servicio {
+  background-color: #f5f5f5;
+  padding: 60px 20px;
+}
+
+.incluye-servicio h2 {
+  text-align: center;
+  margin-bottom: 50px;
+  color: #333;
+  font-size: 38px;
+}
+
+.servicios-info {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  flex-wrap: wrap;
+}
+
+.servicio-card {
+  width: 400px;
+  text-align: left;
+}
+
+.icono {
+  font-size: 70px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.servicio-card h3 {
+  color: #58c69d;
+  margin-bottom: 15px;
+  font-size: 30px;
+}
+
+.servicio-card p {
+  color: #555;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.footer{
+    background:#1f2937;
+    color:white;
+    margin-top:80px;
+}
+
+.footer-contenido{
+    max-width:1200px;
+    margin:auto;
+    padding:50px 30px;
+    display:flex;
+    justify-content:space-between;
+    gap:50px;
+    flex-wrap:wrap;
+}
+
+.footer-logo,
+.footer-links,
+.footer-contacto{
+    flex:1;
+    min-width:220px;
+}
+
+.footer h2{
+    margin-bottom:15px;
+    color:#fff;
+}
+
+.footer h3{
+    margin-bottom:15px;
+    color:#fff;
+}
+
+.footer p{
+    color:#d1d5db;
+    line-height:1.8;
+}
+
+.footer-links{
+    display:flex;
+    flex-direction:column;
+}
+
+.footer-links a{
+    color:#d1d5db;
+    text-decoration:none;
+    margin-bottom:10px;
+    transition:.3s;
+}
+
+.footer-links a:hover{
+    color:#ffffff;
+    padding-left:6px;
+}
+
+.footer-copy{
+    border-top:1px solid rgba(255,255,255,.15);
+    text-align:center;
+    padding:20px;
+    color:#cbd5e1;
+}

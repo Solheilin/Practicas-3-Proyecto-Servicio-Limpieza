@@ -1,0 +1,165 @@
+<div class="registro-container">
+
+  <form class="registro-form"
+        #registroEmpleadaForm="ngForm"
+        (ngSubmit)="registrarEmpleada()">
+
+    <h2>Registrarme como empleada</h2>
+
+    <p class="descripcion">
+      Completa tus datos para postularte como empleada doméstica.
+    </p>
+
+    <!-- Nombre -->
+    <div class="form-group">
+      <label>Nombre</label>
+
+      <input
+        type="text"
+        name="nombre"
+        [(ngModel)]="nombre"
+        #nombreInput="ngModel"
+        required>
+
+      @if(nombreInput.invalid && nombreInput.touched){
+        <small class="error">
+          El nombre es obligatorio.
+        </small>
+      }
+    </div>
+
+    <!-- Apellido -->
+    <div class="form-group">
+      <label>Apellido</label>
+
+      <input
+        type="text"
+        name="apellido"
+        [(ngModel)]="apellido"
+        #apellidoInput="ngModel"
+        required>
+
+      @if(apellidoInput.invalid && apellidoInput.touched){
+        <small class="error">
+          El apellido es obligatorio.
+        </small>
+      }
+    </div>
+
+    <!-- DNI -->
+    <div class="form-group">
+      <label>DNI</label>
+
+      <input
+        type="number"
+        name="dni"
+        [(ngModel)]="dni"
+        #dniInput="ngModel"
+        required>
+
+      @if(dniInput.invalid && dniInput.touched){
+        <small class="error">
+          El DNI es obligatorio.
+        </small>
+      }
+    </div>
+
+    <!-- Foto DNI -->
+    <div class="form-group">
+
+      <label>Adjunte foto del DNI</label>
+
+      <input
+        type="file"
+        accept="image/*,.pdf"
+        (change)="seleccionarArchivo($event)"
+        required>
+
+    </div>
+
+    <!-- Teléfono -->
+    <div class="form-group">
+      <label>Número de teléfono</label>
+
+      <input
+        type="tel"
+        name="telefono"
+        [(ngModel)]="telefono"
+        #telefonoInput="ngModel"
+        required>
+
+      @if(telefonoInput.invalid && telefonoInput.touched){
+        <small class="error">
+          El teléfono es obligatorio.
+        </small>
+      }
+    </div>
+
+    <!-- Correo -->
+    <div class="form-group">
+      <label>Correo electrónico</label>
+
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        #emailInput="ngModel"
+        required
+        email>
+
+      @if(emailInput.invalid && emailInput.touched){
+
+        @if(emailInput.errors?.['required']){
+          <small class="error">
+            El correo es obligatorio.
+          </small>
+        }
+
+        @if(emailInput.errors?.['email']){
+          <small class="error">
+            Ingrese un correo válido.
+          </small>
+        }
+
+      }
+    </div>
+
+    <!-- Contraseña -->
+    <div class="form-group">
+      <label>Contraseña</label>
+
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        #passwordInput="ngModel"
+        required
+        minlength="6">
+
+      @if(passwordInput.invalid && passwordInput.touched){
+        <small class="error">
+          La contraseña debe tener al menos 6 caracteres.
+        </small>
+      }
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="registroEmpleadaForm.invalid">
+
+      Registrarme
+
+    </button>
+
+    <div class="login-link">
+      <p>¿Ya tienes una cuenta?</p>
+
+      <a routerLink="/login">
+        Iniciar sesión
+      </a>
+    </div>
+
+  </form>
+
+</div>
+

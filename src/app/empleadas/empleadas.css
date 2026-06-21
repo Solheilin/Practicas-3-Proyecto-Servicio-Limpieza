@@ -1,0 +1,259 @@
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.contenedor{
+    max-width:1400px;
+    margin:auto;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.barra-superior{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.barra-superior input{
+    width:350px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+.btn-filtro{
+    padding:12px 25px;
+    border:none;
+    background:#58c69d;
+    color:white;
+    cursor:pointer;
+    border-radius:6px;
+}
+
+.presupuesto{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.btn-presupuesto{
+    background:#58c69d;
+    color:white;
+    border:none;
+    padding:15px 30px;
+    cursor:pointer;
+    border-radius:4px;
+}
+
+.presupuesto p{
+    color:#58c69d;
+    font-weight:bold;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(320px,1fr));
+
+    gap:30px;
+}
+
+.card{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
+}
+
+.cabecera-card{
+    background:#2c3e50;
+    color:white;
+    text-align:center;
+    padding:25px;
+}
+
+.cabecera-card img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid white;
+}
+
+.verificado{
+    display:block;
+    margin-top:10px;
+    font-size:12px;
+}
+
+.contenido-card{
+    padding:20px;
+    text-align:center;
+}
+
+.estrellas{
+    font-size:24px;
+    margin:10px 0;
+}
+
+blockquote{
+    font-style:italic;
+    color:#555;
+}
+
+.acciones-superiores{
+    margin-bottom:20px;
+}
+
+.btn-volver{
+    background:#6c757d;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.btn-volver:hover{
+    background:#545b62;
+}
+.footer{
+    background:#1f2937;
+    color:white;
+    margin-top:80px;
+}
+
+.footer-contenido{
+    max-width:1200px;
+    margin:auto;
+    padding:50px 30px;
+    display:flex;
+    justify-content:space-between;
+    gap:50px;
+    flex-wrap:wrap;
+}
+
+.footer-logo,
+.footer-links,
+.footer-contacto{
+    flex:1;
+    min-width:220px;
+}
+
+.footer h2{
+    margin-bottom:15px;
+    color:#fff;
+}
+
+.footer h3{
+    margin-bottom:15px;
+    color:#fff;
+}
+
+.footer p{
+    color:#d1d5db;
+    line-height:1.8;
+}
+
+.footer-links{
+    display:flex;
+    flex-direction:column;
+}
+
+.footer-links a{
+    color:#d1d5db;
+    text-decoration:none;
+    margin-bottom:10px;
+    transition:.3s;
+}
+
+.footer-links a:hover{
+    color:#ffffff;
+    padding-left:6px;
+}
+
+.footer-copy{
+    border-top:1px solid rgba(255,255,255,.15);
+    text-align:center;
+    padding:20px;
+    color:#cbd5e1;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.hero{
+    min-height:70vh;
+    background-image:
+    linear-gradient(rgba(0,0,0,.4),
+    rgba(0,0,0,.4)),
+    url('/assets/pexels-tima-miroshnichenko-6195274.jpg');
+
+    background-size:cover;
+    background-position:center;
+    color:white;
+}
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 80px;
+}
+
+.logo h2{
+    font-size:2rem;
+}
+
+.menu{
+    display:flex;
+    align-items:center;
+    gap:30px;
+}
+
+.menu a{
+    color:white;
+    text-decoration:none;
+}
+
+.btn-empleo{
+    background:transparent;
+    border:2px solid white;
+    color:white;
+    padding:10px 20px;
+    cursor:pointer;
+}
+
+.hero-content{
+    text-align:center;
+    margin-top:120px;
+}
+
+.hero-content h1{
+    font-size:4rem;
+    margin-bottom:40px;
+}
+
+.hero-buttons{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
