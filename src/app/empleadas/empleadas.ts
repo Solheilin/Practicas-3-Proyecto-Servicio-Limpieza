@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-empleadas',
-  imports: [FormsModule,RouterLink],
+  imports: [FormsModule,RouterLink, TitleCasePipe],
   templateUrl: './empleadas.html',
   styleUrl: './empleadas.css',
 })

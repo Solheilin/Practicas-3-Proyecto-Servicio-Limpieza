@@ -62,7 +62,7 @@
                         [src]="'assets/usuarios/' + profesional.foto"
                         [alt]="profesional.nombre">
 
-                    <h3>{{ profesional.nombre }}</h3>
+                    <h3>{{profesional.nombre | titlecase }}</h3>
 
                     <p>
                         {{ profesional.zona }}

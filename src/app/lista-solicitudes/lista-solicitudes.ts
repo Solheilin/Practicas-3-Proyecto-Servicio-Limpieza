@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SolicitudEmpleada } from '../services/solicitud-empleada';
 import Swal from 'sweetalert2';
+import { DatePipe } from '@angular/common'; 
 
 @Component({
   selector: 'app-lista-solicitudes',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule , DatePipe],
   templateUrl: './lista-solicitudes.html',
   styleUrl: './lista-solicitudes.css'
 })
