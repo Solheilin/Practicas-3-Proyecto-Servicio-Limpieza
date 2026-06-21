@@ -161,3 +161,30 @@ input[type="file"]{
     cursor:not-allowed;
     box-shadow:none;
 }
+.hero{
+    min-height:70vh;
+    background-image:
+    linear-gradient(rgba(0,0,0,.4),
+    rgba(0,0,0,.4)),
+    url('/assets/pexels-tima-miroshnichenko-6195274.jpg');
+
+    background-size:cover;
+    background-position:center;
+    color:white;
+}
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 80px;
+}
+
+.hero-content h1{
+    font-size:4rem;
+    margin-bottom:40px;
+    text-align: center;
+
+    
+}
+
