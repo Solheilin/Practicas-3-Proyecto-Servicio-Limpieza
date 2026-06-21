@@ -29,3 +29,9 @@ export class SolicitudEmpleada {
   }
 
 }
+
+let datos = JSON.parse(localStorage.getItem('solicitudes') || '[]');
+
+datos.splice(6, 1);
+
+localStorage.setItem('solicitudes', JSON.stringify(datos));
