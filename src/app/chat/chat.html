@@ -1,0 +1,74 @@
+<header class="barra">
+  <nav class="navbar">
+    <div class="logo"><h2>Limpieza</h2></div>
+    <app-menu-sesion />
+  </nav>
+</header>
+
+<main class="contenedor">
+  <div class="ventana-chat">
+
+    <!-- Encabezado de la conversación -->
+    <div class="encabezado">
+      <a routerLink="/chats" class="volver" title="Volver a mensajes">←</a>
+
+      @if (chat(); as c) {
+        <span class="avatar">{{ titulo().charAt(0).toUpperCase() }}</span>
+        <div class="datos">
+          <strong>{{ titulo() }}</strong>
+          <small>{{ c.resumen.servicios }} · 📅 {{ c.resumen.fecha | date:'dd/MM/yyyy' }} · {{ c.resumen.horario }}</small>
+          <small>📍 {{ c.resumen.direccion }} · {{ c.resumen.frecuencia }}</small>
+        </div>
+      } @else {
+        <div class="datos"><strong>Conversación</strong></div>
+      }
+    </div>
+
+    <!-- Mensajes -->
+    <div class="mensajes" #zonaMensajes>
+      @if (cargando()) {
+        <p class="aviso">Cargando...</p>
+      } @else if (mensajes().length === 0 && chat()) {
+        <p class="aviso">
+          👋 Este es el comienzo de la conversación.<br>
+          Coordiná los detalles: horario de llegada, cómo entrar, si hay mascotas, etc.
+        </p>
+      }
+
+      @for (m of mensajes(); track m.id; let i = $index) {
+        @if (separadorDeDia(i); as dia) {
+          <div class="dia"><span>{{ dia }}</span></div>
+        }
+
+        <div class="burbuja" [class.mia]="esMio(m)">
+          @if (!esMio(m)) {
+            <span class="autor">{{ m.autorNombre }}</span>
+          }
+          <p>{{ m.texto }}</p>
+          <span class="hora">{{ m.fecha | date:'HH:mm' }}</span>
+        </div>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <!-- Caja para escribir -->
+    @if (chat() && !soloLectura()) {
+      <form class="escribir" (ngSubmit)="enviar()">
+        <textarea
+          name="texto"
+          rows="1"
+          maxlength="1000"
+          placeholder="Escribí un mensaje..."
+          [(ngModel)]="texto"
+          (keydown)="alPresionarTecla($event)"></textarea>
+        <button type="submit" [disabled]="!texto.trim() || enviando()" title="Enviar">➤</button>
+      </form>
+    } @else if (chat()) {
+      <p class="solo-lectura">👁️ Estás viendo esta conversación como administrador.</p>
+    }
+
+  </div>
+</main>

@@ -251,3 +251,7 @@ button:hover {
     
      
 }
+
+.aviso{ text-align:center; color:#777; padding:40px 20px; font-size:1.05rem; }
+.aviso.error{ color:#e74c3c; }
+.btn-tomar:disabled{ opacity:.6; cursor:not-allowed; }

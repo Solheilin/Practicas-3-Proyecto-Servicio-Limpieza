@@ -1,0 +1,84 @@
+.menu{
+    display:flex;
+    align-items:center;
+    gap:25px;
+    flex-wrap:wrap;
+}
+
+.menu a{
+    color:white;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.menu a:hover{
+    text-decoration:underline;
+}
+
+.btn-empleo{
+    border:2px solid white;
+    padding:10px 20px;
+    border-radius:6px;
+}
+
+.btn-empleo:hover{
+    background:white;
+    color:#333 !important;
+    text-decoration:none !important;
+}
+
+.usuario{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:white;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background:#58c69d;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:1.1rem;
+}
+
+.datos{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
+}
+
+.datos small{
+    opacity:.8;
+}
+
+.btn-salir{
+    background:transparent;
+    color:white;
+    border:2px solid white;
+    padding:8px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:.95rem;
+    transition:.2s;
+}
+
+.btn-salir:hover{
+    background:white;
+    color:#333;
+}
+
+@media(max-width:768px){
+    .menu{
+        gap:12px;
+        justify-content:flex-end;
+    }
+    .datos small{
+        display:none;
+    }
+}

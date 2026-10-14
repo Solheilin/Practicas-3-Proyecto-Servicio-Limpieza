@@ -1,0 +1,92 @@
+<header class="hero">
+
+  <nav class="navbar">
+    <div class="logo">
+      <h2>Limpieza</h2>
+    </div>
+
+    <div class="menu">
+      <a routerLink="/">Inicio</a>
+    </div>
+  </nav>
+
+  <div class="hero-content">
+    <h1>Mi perfil</h1>
+  </div>
+
+</header>
+
+
+<div class="perfil-container">
+
+  @if(perfil){
+
+    <div class="perfil-card">
+
+      <div class="perfil-foto">
+        👩‍🦰
+      </div>
+
+      <h2>
+        {{ perfil.nombre }} {{ perfil.apellido }}
+      </h2>
+
+      <p class="estado">
+        ✓ Perfil registrado
+      </p>
+
+
+      <div class="perfil-datos">
+
+        <div class="dato">
+          <strong>DNI</strong>
+          <span>{{ perfil.dni }}</span>
+        </div>
+
+        <div class="dato">
+          <strong>Teléfono</strong>
+          <span>{{ perfil.telefono }}</span>
+        </div>
+
+        <div class="dato">
+          <strong>Correo electrónico</strong>
+          <span>{{ perfil.email }}</span>
+        </div>
+
+      </div>
+
+
+      <div class="perfil-acciones">
+
+        <button>
+          Editar perfil
+        </button>
+
+        <button routerLink="/">
+          Volver al inicio
+        </button>
+
+      </div>
+
+    </div>
+
+  }
+  @else {
+
+    <div class="sin-perfil">
+
+      <h2>No encontramos tu perfil</h2>
+
+      <p>
+        Primero debes registrarte como empleada.
+      </p>
+
+      <button routerLink="/registro-empleada">
+        Registrarme
+      </button>
+
+    </div>
+
+  }
+
+</div>

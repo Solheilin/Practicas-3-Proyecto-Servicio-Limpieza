@@ -1,0 +1,111 @@
+<header class="barra">
+  <nav class="navbar">
+    <div class="logo">
+      <h2>Limpieza <span class="etiqueta-admin">Admin</span></h2>
+    </div>
+
+    <app-menu-sesion />
+  </nav>
+</header>
+
+<main class="panel">
+
+  <div class="encabezado">
+    <div>
+      <h1>Administración de usuarios</h1>
+      <p>Revisá, activá, desactivá o eliminá las cuentas de clientes y empleadas.</p>
+    </div>
+    <button type="button" class="btn-recargar" (click)="cargar()" [disabled]="cargando()">
+      ↻ Actualizar
+    </button>
+  </div>
+
+  <!-- Tarjetas con totales (también funcionan como filtro) -->
+  <section class="tarjetas">
+    <button type="button" class="tarjeta" [class.activa]="filtro() === 'todos'" (click)="filtro.set('todos')">
+      <span class="numero">{{ totales().todos }}</span>
+      <span>Todos</span>
+    </button>
+    <button type="button" class="tarjeta" [class.activa]="filtro() === 'cliente'" (click)="filtro.set('cliente')">
+      <span class="numero">{{ totales().cliente }}</span>
+      <span>Clientes</span>
+    </button>
+    <button type="button" class="tarjeta" [class.activa]="filtro() === 'empleada'" (click)="filtro.set('empleada')">
+      <span class="numero">{{ totales().empleada }}</span>
+      <span>Empleadas</span>
+    </button>
+    <button type="button" class="tarjeta" [class.activa]="filtro() === 'admin'" (click)="filtro.set('admin')">
+      <span class="numero">{{ totales().admin }}</span>
+      <span>Administradores</span>
+    </button>
+    <button type="button" class="tarjeta alerta" [class.activa]="filtro() === 'inactivos'" (click)="filtro.set('inactivos')">
+      <span class="numero">{{ totales().inactivos }}</span>
+      <span>Desactivados</span>
+    </button>
+  </section>
+
+  <input
+    class="buscador"
+    type="search"
+    placeholder="Buscar por nombre, correo o DNI..."
+    [ngModel]="busqueda()"
+    (ngModelChange)="busqueda.set($event)">
+
+  @if (cargando()) {
+    <p class="mensaje">Cargando usuarios...</p>
+  } @else if (error()) {
+    <p class="mensaje error">{{ error() }}</p>
+  } @else if (usuariosFiltrados().length === 0) {
+    <p class="mensaje">No hay usuarios que coincidan.</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Tipo</th>
+            <th>Teléfono</th>
+            <th>Alta</th>
+            <th>Estado</th>
+            <th class="col-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of usuariosFiltrados(); track u.uid) {
+            <tr [class.inactivo]="u.activo === false">
+              <td>
+                <div class="persona">
+                  <span class="avatar" [class]="'avatar ' + u.tipo">{{ u.nombre.charAt(0).toUpperCase() }}</span>
+                  <div>
+                    <strong>{{ u.nombre }} {{ u.apellido }}</strong>
+                    @if (u.uid === miUid()) { <span class="vos">(vos)</span> }
+                    <small>{{ u.email }}</small>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge" [class]="'badge ' + u.tipo">{{ etiquetas[u.tipo] }}</span></td>
+              <td>{{ $any(u).telefono || '—' }}</td>
+              <td>{{ u.creado ? (u.creado | date: 'dd/MM/yyyy') : '—' }}</td>
+              <td>
+                @if (u.activo === false) {
+                  <span class="estado off">● Desactivada</span>
+                } @else {
+                  <span class="estado on">● Activa</span>
+                }
+              </td>
+              <td class="col-acciones">
+                <button type="button" class="btn ver" (click)="verDetalle(u)">Ver</button>
+                @if (u.uid !== miUid()) {
+                  <button type="button" class="btn" [class.activar]="u.activo === false" [class.desactivar]="u.activo !== false" (click)="cambiarEstado(u)">
+                    {{ u.activo === false ? 'Activar' : 'Desactivar' }}
+                  </button>
+                  <button type="button" class="btn eliminar" (click)="eliminar(u)">Eliminar</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>

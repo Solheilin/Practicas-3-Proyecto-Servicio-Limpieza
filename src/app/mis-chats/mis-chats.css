@@ -1,0 +1,124 @@
+.barra{ background:#2f3e46; color:white; }
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 60px;
+}
+
+.logo h2{ margin:0; }
+
+.panel{
+    max-width:800px;
+    margin:0 auto;
+    padding:40px 20px 60px;
+    min-height:80vh;
+}
+
+h1{ color:#2f3e46; margin-bottom:5px; }
+h2{ font-size:1.15rem; color:#2f3e46; margin:0 0 5px; }
+
+.subtitulo{ color:#777; margin:0 0 15px; }
+
+/* ---------- Solicitudes pendientes ---------- */
+.pendientes{
+    background:#fff8ec;
+    border:1px solid #f5d9a8;
+    border-radius:12px;
+    padding:20px;
+    margin:20px 0 30px;
+}
+
+.pendiente{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    background:white;
+    padding:12px 15px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.pendiente small{ display:block; color:#777; margin-top:3px; }
+
+.btn-cancelar{
+    background:transparent;
+    border:1px solid #e74c3c;
+    color:#e74c3c;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.btn-cancelar:hover{ background:#e74c3c; color:white; }
+
+/* ---------- Lista de chats ---------- */
+.lista{
+    background:white;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,.07);
+    overflow:hidden;
+    margin-top:20px;
+}
+
+.chat-item{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:16px 20px;
+    border-bottom:1px solid #eee;
+    text-decoration:none;
+    color:inherit;
+    transition:background .15s;
+}
+
+.chat-item:last-child{ border-bottom:none; }
+.chat-item:hover{ background:#f5faf8; }
+
+.avatar{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#58c69d;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:1.2rem;
+    flex-shrink:0;
+}
+
+.info{ flex:1; min-width:0; }
+
+.fila{ display:flex; justify-content:space-between; gap:10px; }
+.fila small{ color:#999; white-space:nowrap; }
+
+.detalle, .preview{
+    display:block;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.detalle{ color:#58c69d; font-size:.85rem; margin:2px 0; }
+.preview{ color:#777; font-size:.9rem; }
+
+.vacio{ text-align:center; color:#777; padding:40px 20px; }
+.vacio.error{ color:#e74c3c; }
+
+.btn-accion{
+    display:inline-block;
+    margin-top:10px;
+    background:#58c69d;
+    color:white;
+    padding:10px 20px;
+    border-radius:8px;
+    text-decoration:none;
+}
+
+@media(max-width:768px){
+    .navbar{ padding:15px 20px; }
+}

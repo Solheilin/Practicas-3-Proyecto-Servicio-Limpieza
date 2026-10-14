@@ -1,0 +1,28 @@
+<div class="menu">
+  @if (verificando()) {
+   
+  } @else if (usuario(); as u) {
+
+    @switch (u.tipo) {
+      @case ('cliente') { <a routerLink="/solicitud-servicio">Solicitar servicio</a> }
+      @case ('empleada') { <a routerLink="/solicitudes">Ver trabajos</a> }
+      @case ('admin') { <a routerLink="/admin">Administrar usuarios</a> }
+    }
+
+    <a routerLink="/chats">💬 Mensajes</a>
+
+    <div class="usuario">
+      <span class="avatar">{{ inicial() }}</span>
+      <span class="datos">
+        <strong>Hola, {{ u.nombre }}</strong>
+        <small>{{ etiquetas[u.tipo] }}</small>
+      </span>
+    </div>
+
+    <button type="button" class="btn-salir" (click)="cerrarSesion()">Cerrar sesión</button>
+
+  } @else {
+    <a routerLink="/login">Acceder</a>
+    <a class="btn-empleo" routerLink="/registro-empleada">¿Buscás empleo?</a>
+  }
+</div>

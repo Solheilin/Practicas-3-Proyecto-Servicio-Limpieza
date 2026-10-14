@@ -1,0 +1,70 @@
+<header class="barra">
+  <nav class="navbar">
+    <div class="logo"><h2>Limpieza</h2></div>
+    <app-menu-sesion />
+  </nav>
+</header>
+
+<main class="panel">
+
+  <h1>💬 Mensajes</h1>
+
+  @if (usuario()?.tipo === 'admin') {
+    <p class="subtitulo">Como administrador ves todas las conversaciones (solo lectura).</p>
+  }
+
+  <!-- Solo clientes: solicitudes que todavía ninguna empleada tomó -->
+  @if (pendientes().length > 0) {
+    <section class="pendientes">
+      <h2>⏳ Esperando una empleada</h2>
+      <p class="subtitulo">Cuando una empleada tome tu solicitud, el chat aparece abajo automáticamente.</p>
+
+      @for (s of pendientes(); track s.id) {
+        <div class="pendiente">
+          <div>
+            <strong>{{ serviciosDe(s) }}</strong>
+            <small>📅 {{ s.fecha | date:'dd/MM/yyyy' }} · {{ s.horario }} · {{ s.direccion }}</small>
+          </div>
+          <button type="button" class="btn-cancelar" (click)="cancelar(s)">Cancelar</button>
+        </div>
+      }
+    </section>
+  }
+
+  <section class="lista">
+    @if (cargando()) {
+      <p class="vacio">Cargando conversaciones...</p>
+    } @else if (error()) {
+      <p class="vacio error">{{ error() }}</p>
+    } @else if (chats().length === 0) {
+      <div class="vacio">
+        <p>Todavía no tenés conversaciones.</p>
+        @switch (usuario()?.tipo) {
+          @case ('cliente') {
+            <p>Pedí un servicio y, cuando una empleada lo tome, vas a poder chatear con ella acá.</p>
+            <a class="btn-accion" routerLink="/solicitud-servicio">Solicitar servicio</a>
+          }
+          @case ('empleada') {
+            <p>Tomá un trabajo y se va a abrir un chat con el cliente.</p>
+            <a class="btn-accion" routerLink="/solicitudes">Ver trabajos disponibles</a>
+          }
+        }
+      </div>
+    } @else {
+      @for (chat of chats(); track chat.id) {
+        <a class="chat-item" [routerLink]="['/chats', chat.id]">
+          <span class="avatar">{{ inicial(chat) }}</span>
+
+          <div class="info">
+            <div class="fila">
+              <strong>{{ otraPersona(chat) }}</strong>
+              <small>{{ chat.ultimoMensajeFecha | date:'dd/MM HH:mm' }}</small>
+            </div>
+            <span class="detalle">{{ chat.resumen.servicios }} · 📅 {{ chat.resumen.fecha | date:'dd/MM/yyyy' }}</span>
+            <span class="preview">{{ vistaPrevia(chat) }}</span>
+          </div>
+        </a>
+      }
+    }
+  </section>
+</main>

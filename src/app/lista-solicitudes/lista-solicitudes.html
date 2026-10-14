@@ -5,6 +5,7 @@
      
     </div>
 
+    <app-menu-sesion />
   </nav>
 
   <div class="hero-content">
@@ -15,97 +16,72 @@
 </header>
 <div class="contenedor">
 
+    @if (cargando()) {
+        <p class="aviso">Cargando trabajos disponibles...</p>
+    } @else if (error()) {
+        <p class="aviso error">{{ error() }}</p>
+    } @else if (solicitudes().length === 0) {
+        <p class="aviso">No hay trabajos disponibles por ahora. Esta lista se actualiza sola cuando un cliente publica uno.</p>
+    } @else {
+
     <div class="cards">
 
-        @if(solicitudes.length > 0){
+        @for (solicitud of solicitudes(); track solicitud.id) {
 
-           @for (solicitud of solicitudes; track solicitud; let i = $index) {
+            <div class="card">
 
-                <div class="card">
+                <div class="cabecera-card">
 
-                    <div class="cabecera-card">
+                    <h3>{{ solicitud.nombre }} {{ solicitud.apellido }}</h3>
 
-                        <h3>{{ solicitud.nombre }} {{ solicitud.apellido }}</h3>
+                    <p>{{ solicitud.frecuencia }}</p>
 
-                        <p>{{ solicitud.frecuencia }}</p>
+                    <span class="verificado">
+                        📅 {{ solicitud.fecha | date:'dd/MM/yyyy' }}
+                    </span>
 
-                        <span class="verificado">
-                            📅 {{ solicitud.fecha | date:'dd/MM/yyyy' }}
-                        </span>
+                </div>
 
-                    </div>
+                <div class="contenido-card">
 
-                    <div class="contenido-card">
+                    <p><strong>Dirección:</strong> {{ solicitud.direccion }}</p>
 
-                        <p><strong>Correo:</strong> {{ solicitud.correo }}</p>
+                    <p><strong>Horario:</strong> {{ solicitud.horario }}</p>
 
-                        <p><strong>Teléfono:</strong> {{ solicitud.telefono }}</p>
+                    <p><strong>Requerimientos:</strong></p>
 
-                        <p><strong>Dirección:</strong> {{ solicitud.direccion }}</p>
+                    <blockquote>
+                        {{ solicitud.requerimientos }}
+                    </blockquote>
 
-                        <p><strong>Horario:</strong> {{ solicitud.horario }}</p>
+                    <hr>
 
-                        <p><strong>Requerimientos:</strong></p>
+                    <h4>Servicios</h4>
 
-                        <blockquote>
-                            {{ solicitud.requerimientos }}
-                        </blockquote>
+                    <ul>
+                        @if(solicitud.planchar){ <li>✔ Planchar</li> }
+                        @if(solicitud.lavar){ <li>✔ Lavar</li> }
+                        @if(solicitud.cocina){ <li>✔ Cocina</li> }
+                        @if(solicitud.cuidadoNinos){ <li>✔ Cuidado de niños</li> }
+                        @if(solicitud.camaAdentro){ <li>✔ Cama adentro</li> }
+                    </ul>
 
-                        <hr>
-
-                        <h4>Servicios</h4>
-
-                        <ul>
-
-                            @if(solicitud.planchar){
-                                <li>✔ Planchar</li>
-                            }
-
-                            @if(solicitud.lavar){
-                                <li>✔ Lavar</li>
-                            }
-
-                            @if(solicitud.cocina){
-                                <li>✔ Cocina</li>
-                            }
-
-                            @if(solicitud.cuidadoNinos){
-                                <li>✔ Cuidado de niños</li>
-                            }
-
-                            @if(solicitud.camaAdentro){
-                                <li>✔ Cama adentro</li>
-                            }
-
-                        </ul>
-                        <div class="acciones-card">
-
-   <button class="btn-tomar" (click)="tomarTrabajo(i)">
-  Tomar trabajo
-</button>
-
-</div>
-
+                    <div class="acciones-card">
+                        <button class="btn-tomar"
+                                (click)="tomarTrabajo(solicitud)"
+                                [disabled]="tomando() !== null">
+                            {{ tomando() === solicitud.id ? 'Tomando...' : 'Tomar trabajo' }}
+                        </button>
                     </div>
 
                 </div>
 
-            }
-            
-
-        } @else {
-
-            <p>No hay solicitudes registradas.</p>
+            </div>
 
         }
 
     </div>
 
-
-    <div class="footer-botones">
-
-        
-
-    </div>
+    }
 
 </div>
