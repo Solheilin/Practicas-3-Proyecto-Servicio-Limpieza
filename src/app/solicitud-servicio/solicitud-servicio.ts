@@ -138,7 +138,8 @@ export class SolicitudServicio implements OnInit {
 
     const pedido = this.idEdicion
       ? this.api.actualizar(this.idEdicion, datos)   // PATCH
-      : this.api.crear(cliente.uid, datos);          // POST
+      : this.api.crear(
+         datos);          // POST
 
     pedido.subscribe({
       next: async () => {

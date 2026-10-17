@@ -53,7 +53,7 @@ export class MisSolicitudes implements OnInit {
     this.cargando.set(true);
     this.error.set('');
 
-    this.api.listarMias(u.uid).subscribe({
+    this.api.listarMias().subscribe({
       next: lista => {
         this.solicitudes.set(lista);
         this.cargando.set(false);

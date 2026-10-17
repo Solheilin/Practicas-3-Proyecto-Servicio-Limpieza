@@ -16,6 +16,19 @@
 </header>
 <div class="contenedor">
 
+    <!-- Pestañas -->
+    <div class="pestanas">
+        <button type="button" class="pestana" [class.activa]="vista() === 'disponibles'" (click)="vista.set('disponibles')">
+            🔎 Disponibles ({{ solicitudes().length }})
+        </button>
+        <button type="button" class="pestana" [class.activa]="vista() === 'mios'" (click)="vista.set('mios')">
+            📋 Mis trabajos ({{ misTrabajos().length }})
+        </button>
+    </div>
+
+    <!-- ===================== DISPONIBLES ===================== -->
+    @if (vista() === 'disponibles') {
+
     @if (cargando()) {
         <p class="aviso">Cargando trabajos disponibles...</p>
     } @else if (error()) {
@@ -81,6 +94,95 @@
         }
 
     </div>
+
+    }
+
+    }
+
+    <!-- ===================== MIS TRABAJOS (historial) ===================== -->
+    @if (vista() === 'mios') {
+
+    <div class="barra-historial">
+        <div class="filtros">
+            <button type="button" class="filtro" [class.activo]="filtro() === 'proximos'" (click)="filtro.set('proximos')">
+                Próximos ({{ proximos().length }})
+            </button>
+            <button type="button" class="filtro" [class.activo]="filtro() === 'realizados'" (click)="filtro.set('realizados')">
+                Realizados ({{ realizados().length }})
+            </button>
+            <button type="button" class="filtro" [class.activo]="filtro() === 'todos'" (click)="filtro.set('todos')">
+                Todos ({{ misTrabajos().length }})
+            </button>
+        </div>
+        <div class="filtros">
+            <button type="button" class="filtro" (click)="cargarMios()">↻ Actualizar</button>
+            <button type="button" class="filtro" (click)="descargarHistorial()" [disabled]="historialVisible().length === 0">⬇ Descargar CSV</button>
+        </div>
+    </div>
+
+    @if (cargandoMios()) {
+        <p class="aviso">Cargando tu historial...</p>
+    } @else if (errorMios()) {
+        <p class="aviso error">{{ errorMios() }}</p>
+    } @else if (historialVisible().length === 0) {
+        <p class="aviso">
+            @if (misTrabajos().length === 0) {
+                Todavía no tomaste ningún trabajo. Andá a la pestaña "Disponibles" para empezar.
+            } @else if (filtro() === 'proximos') {
+                No tenés trabajos próximos.
+            } @else {
+                Todavía no tenés trabajos realizados.
+            }
+        </p>
+    } @else {
+
+    <div class="cards">
+
+        @for (t of historialVisible(); track t.id) {
+
+            <div class="card">
+
+                <div class="cabecera-card">
+
+                    <h3>{{ serviciosDe(t) }}</h3>
+
+                    <p>{{ t.frecuencia }} · {{ t.horario }}</p>
+
+                    <span class="verificado">
+                        📅 {{ t.fecha | date:'dd/MM/yyyy' }}
+                    </span>
+
+                    <span class="etiqueta" [class.realizado]="esRealizado(t)">
+                        {{ esRealizado(t) ? 'Realizado' : 'Próximo' }}
+                    </span>
+
+                </div>
+
+                <div class="contenido-card">
+
+                    <p><strong>Cliente:</strong> {{ t.nombre }} {{ t.apellido }}</p>
+
+                    <p><strong>Teléfono:</strong> {{ t.telefono }}</p>
+
+                    <p><strong>Dirección:</strong> {{ t.direccion }}</p>
+
+                    <blockquote>
+                        {{ t.requerimientos }}
+                    </blockquote>
+
+                    <div class="acciones-card">
+                        <a class="btn-chat" [routerLink]="['/chats', t.id]">💬 Ir al chat</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        }
+
+    </div>
+
+    }
 
     }
 

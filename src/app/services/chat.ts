@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
-  collection, doc, query, where, orderBy, onSnapshot, writeBatch,
+  collection, doc, query, where, orderBy, onSnapshot, writeBatch, setDoc,
   serverTimestamp, Timestamp, Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Usuario } from './auth';
+import { Solicitud, serviciosDe } from './solicitudes';
 
 export interface Chat {
   id: string;
@@ -47,7 +48,39 @@ function aChat(id: string, datos: any): Chat {
 })
 export class ChatService {
 
-  /** Conversaciones del usuario en tiempo real. El admin ve todas. */
+  /**
+   * Crea el chat entre la empleada y el cliente cuando la empleada toma un trabajo.
+   * La solicitud vive en MySQL (backend); el chat, en Firestore (tiempo real).
+   * Usa el mismo id que la solicitud, así cada solicitud tiene un único chat.
+   */
+  async crearChat(solicitud: Solicitud, empleada: Usuario): Promise<string> {
+    const chatId = solicitud.id;
+    await setDoc(doc(db, 'chats', chatId), {
+      solicitudId: solicitud.id,
+      participantes: [solicitud.clienteUid, empleada.uid],
+      clienteUid: solicitud.clienteUid,
+      clienteNombre: `${solicitud.nombre} ${solicitud.apellido}`.trim(),
+      empleadaUid: empleada.uid,
+      empleadaNombre: `${empleada.nombre} ${empleada.apellido}`.trim(),
+      resumen: {
+        direccion: solicitud.direccion,
+        fecha: solicitud.fecha,
+        horario: solicitud.horario,
+        frecuencia: solicitud.frecuencia,
+        servicios: serviciosDe(solicitud),
+      },
+      ultimoMensaje: '',
+      ultimoAutorUid: '',
+      ultimoMensajeFecha: serverTimestamp(),
+      creado: serverTimestamp(),
+    });
+    return chatId;
+  }
+
+  /**
+   * Conversaciones del usuario en tiempo real.
+   * El administrador ve todas; los demás, solo en las que participan.
+   */
   escucharMisChats(usuario: Usuario, callback: (chats: Chat[]) => void, alError?: (e: any) => void): Unsubscribe {
     const ref = collection(db, 'chats');
     const q = usuario.tipo === 'admin'

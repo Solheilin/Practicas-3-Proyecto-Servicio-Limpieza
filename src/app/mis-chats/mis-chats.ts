@@ -6,7 +6,8 @@ import Swal from 'sweetalert2';
 import { MenuSesion } from '../menu-sesion/menu-sesion';
 import { AuthService } from '../services/auth';
 import { Chat, ChatService } from '../services/chat';
-import { Solicitud, SolicitudesService, serviciosDe } from '../services/solicitudes';
+import { Solicitud, serviciosDe } from '../services/solicitudes';
+import { SolicitudesApiService } from '../services/solicitudes-api';
 
 /** Lista de conversaciones del usuario (y, si es cliente, sus solicitudes que esperan empleada). */
 @Component({
@@ -18,7 +19,7 @@ import { Solicitud, SolicitudesService, serviciosDe } from '../services/solicitu
 export class MisChats implements OnInit, OnDestroy {
   private auth = inject(AuthService);
   private chatService = inject(ChatService);
-  private solicitudesService = inject(SolicitudesService);
+  private api = inject(SolicitudesApiService);
 
   usuario = this.auth.usuarioActual;
   chats = signal<Chat[]>([]);
@@ -52,11 +53,15 @@ export class MisChats implements OnInit, OnDestroy {
       }, alError)
     );
 
-    if (u.tipo === 'cliente') {
-      this.desuscripciones.push(
-        this.solicitudesService.escucharMias(u.uid, lista => this.solicitudes.set(lista), alError)
-      );
-    }
+    // Solo clientes: sus solicitudes que todavía esperan empleada (desde el backend)
+    if (u.tipo === 'cliente') this.cargarSolicitudes();
+  }
+
+  private cargarSolicitudes() {
+    this.api.listarMias().subscribe({
+      next: lista => this.solicitudes.set(lista),
+      error: e => console.error(e),
+    });
   }
 
   ngOnDestroy() {
@@ -89,10 +94,9 @@ export class MisChats implements OnInit, OnDestroy {
     });
     if (!r.isConfirmed) return;
 
-    try {
-      await this.solicitudesService.cancelar(s.id);
-    } catch (e) {
-      Swal.fire({ icon: 'error', title: 'Error', text: this.solicitudesService.mensajeDeError(e) });
-    }
+    this.api.eliminar(s.id).subscribe({
+      next: () => this.solicitudes.update(lista => lista.filter(x => x.id !== s.id)),
+      error: e => Swal.fire({ icon: 'error', title: 'Error', text: this.api.mensajeDeError(e) }),
+    });
   }
 }

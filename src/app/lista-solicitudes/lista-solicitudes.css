@@ -252,6 +252,90 @@ button:hover {
      
 }
 
-.aviso{ text-align:center; color:#777; padding:40px 20px; font-size:1.05rem; }
+/* ---------- Avisos ---------- */
+.aviso{
+    text-align:center;
+    color:#777;
+    padding:40px 20px;
+    font-size:1.05rem;
+}
+
 .aviso.error{ color:#e74c3c; }
-.btn-tomar:disabled{ opacity:.6; cursor:not-allowed; }
+
+.btn-tomar:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+/* ---------- Pestañas: Disponibles / Mis trabajos ---------- */
+.pestanas{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+    border-bottom:2px solid #e5e5e5;
+}
+
+.pestanas .pestana{
+    background:transparent;
+    color:#666;
+    border:none;
+    border-bottom:3px solid transparent;
+    border-radius:0;
+    padding:12px 18px;
+    margin-bottom:-2px;
+    font-size:1rem;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.pestanas .pestana.activa{
+    color:#58c69d;
+    border-bottom-color:#58c69d;
+}
+
+/* ---------- Historial ---------- */
+.barra-historial{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.filtros{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.filtros .filtro{
+    background:white;
+    color:#555;
+    border:1px solid #ddd;
+    padding:8px 16px;
+    border-radius:20px;
+    cursor:pointer;
+}
+
+.filtros .filtro.activo{ background:#58c69d; border-color:#58c69d; color:white; }
+.filtros .filtro:disabled{ opacity:.5; cursor:not-allowed; }
+
+.etiqueta{
+    display:inline-block;
+    margin-left:8px;
+    padding:3px 10px;
+    border-radius:20px;
+    font-size:.8rem;
+    font-weight:600;
+    background:#e8f2fb;
+    color:#2c7ab8;
+}
+
+.etiqueta.realizado{ background:#eee; color:#777; }
+
+.btn-chat{
+    display:inline-block;
+    background:#58c69d;
+    color:white;
+    padding:8px 16px;
+    border-radius:6px;
+    text-decoration:none;
+}
+
+.btn-chat:hover{ background:#39b98d; }

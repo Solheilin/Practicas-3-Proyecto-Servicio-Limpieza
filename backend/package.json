@@ -1,0 +1,20 @@
+{
+  "name": "limpieza-backend",
+  "version": "1.0.0",
+  "description": "API REST (CRUD de solicitudes de servicio) con Express y MySQL",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^5.3.0",
+    "firebase-admin": "^13.10.0",
+    "mysql2": "^3.24.6"
+  }
+}
