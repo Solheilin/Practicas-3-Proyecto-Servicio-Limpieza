@@ -271,3 +271,16 @@ button:hover {
     margin-bottom:20px;
 }
 
+.olvide{
+    display:block;
+    text-align:right;
+    margin-top:8px;
+    font-size:.9rem;
+    color:#58c69d;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+.olvide:hover{
+    text-decoration:underline;
+}

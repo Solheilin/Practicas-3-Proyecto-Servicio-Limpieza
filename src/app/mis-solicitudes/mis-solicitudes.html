@@ -1,0 +1,85 @@
+<header class="barra">
+  <nav class="navbar">
+    <div class="logo"><h2>Limpieza</h2></div>
+    <app-menu-sesion />
+  </nav>
+</header>
+
+<main class="panel">
+
+  <div class="encabezado">
+    <div>
+      <h1>Mis solicitudes</h1>
+      <p>Podés editar o eliminar tus pedidos mientras ninguna empleada los haya tomado.</p>
+    </div>
+    <div class="botones">
+      <button type="button" class="btn-secundario" (click)="cargar()" [disabled]="cargando()">↻ Actualizar</button>
+      <a routerLink="/solicitud-servicio" class="btn-principal">+ Nueva solicitud</a>
+    </div>
+  </div>
+
+  <!-- Filtros por estado -->
+  <div class="filtros">
+    <button type="button" [class.activo]="filtro() === 'todas'" (click)="filtro.set('todas')">
+      Todas ({{ solicitudes().length }})
+    </button>
+    <button type="button" [class.activo]="filtro() === 'pendiente'" (click)="filtro.set('pendiente')">
+      Esperando ({{ cantidad('pendiente') }})
+    </button>
+    <button type="button" [class.activo]="filtro() === 'tomada'" (click)="filtro.set('tomada')">
+      Tomadas ({{ cantidad('tomada') }})
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <p class="mensaje">Cargando tus solicitudes...</p>
+  } @else if (error()) {
+    <p class="mensaje error">{{ error() }}</p>
+  } @else if (filtradas().length === 0) {
+    <div class="mensaje">
+      @if (solicitudes().length === 0) {
+        <p>Todavía no hiciste ninguna solicitud.</p>
+        <a routerLink="/solicitud-servicio" class="btn-principal">Pedir mi primer servicio</a>
+      } @else {
+        <p>No hay solicitudes con ese estado.</p>
+      }
+    </div>
+  } @else {
+    <div class="lista">
+      @for (s of filtradas(); track s.id) {
+        <article class="tarjeta" [class]="'tarjeta ' + s.estado">
+
+          <div class="cabecera">
+            <div>
+              <h3>{{ serviciosDe(s) }}</h3>
+              <small>Pedida el {{ s.creada | date:'dd/MM/yyyy HH:mm' }}</small>
+            </div>
+            <span class="estado" [class]="'estado ' + s.estado">{{ etiquetas[s.estado] }}</span>
+          </div>
+
+          <div class="datos">
+            <p>📅 <b>{{ s.fecha | date:'dd/MM/yyyy' }}</b> · {{ s.horario }} · {{ s.frecuencia }}</p>
+            <p>📍 {{ s.direccion }}</p>
+            <p class="requerimientos">“{{ s.requerimientos }}”</p>
+            @if (s.estado === 'tomada') {
+              <p>👩 Tomada por <b>{{ s.empleadaNombre }}</b></p>
+            }
+          </div>
+
+          <div class="acciones">
+            @switch (s.estado) {
+              @case ('pendiente') {
+                <a class="btn editar" [routerLink]="['/solicitud-servicio', s.id]">✏️ Editar</a>
+                <button type="button" class="btn eliminar" (click)="eliminar(s)">🗑️ Eliminar</button>
+              }
+              @case ('tomada') {
+                <a class="btn chat" [routerLink]="['/chats', s.id]">💬 Ir al chat</a>
+              }
+            }
+          </div>
+
+        </article>
+      }
+    </div>
+  }
+</main>

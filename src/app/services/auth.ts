@@ -7,6 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
   User,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -179,6 +180,14 @@ export class AuthService {
     return perfil;
   }
 
+    // ---------- Recuperar contraseña ----------
+
+  /** Manda un correo de Firebase con un link para crear una contraseña nueva. */
+  async recuperarContrasena(email: string) {
+    auth.languageCode = 'es'; // el correo llega en español
+    await sendPasswordResetEmail(auth, email.trim());
+  }
+
   /** Página principal de cada tipo de usuario. */
   inicioDe(usuario: Usuario): string {
     switch (usuario.tipo) {
@@ -206,6 +215,8 @@ export class AuthService {
     const snap = await getDoc(doc(db, COLECCION_USUARIOS, uid));
     return snap.exists() ? (snap.data() as Usuario) : null;
   }
+
+  
 
   // ---------- Errores ----------
 

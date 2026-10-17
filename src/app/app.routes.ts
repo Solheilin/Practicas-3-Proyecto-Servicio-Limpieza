@@ -9,6 +9,7 @@ import { RegistroEmpleada } from './registro-empleada/registro-empleada';
 import { AdminUsuarios } from './admin-usuarios/admin-usuarios';
 import { MisChats } from './mis-chats/mis-chats';
 import { Chat } from './chat/chat';
+import { MisSolicitudes } from './mis-solicitudes/mis-solicitudes';
 import { soloAdmin, soloClientes, soloEmpleadas, soloInvitados, soloLogueados } from './guards';
 
 export const routes: Routes = [
@@ -21,10 +22,12 @@ export const routes: Routes = [
   { path: 'registro', component: Registro, canActivate: [soloInvitados] },
   { path: 'registro-empleada', component: RegistroEmpleada, canActivate: [soloInvitados] },
 
-  // Solo clientes logueados
-  { path: 'solicitud-servicio', component: SolicitudServicio, canActivate: [soloClientes] },
+  // Solo clientes: ABM de solicitudes
+  { path: 'solicitud-servicio', component: SolicitudServicio, canActivate: [soloClientes] },      // alta
+  { path: 'solicitud-servicio/:id', component: SolicitudServicio, canActivate: [soloClientes] },  // modificación
+  { path: 'mis-solicitudes', component: MisSolicitudes, canActivate: [soloClientes] },            // listado y baja
 
-  // Solo empleadas logueadas
+  // Solo empleadas
   { path: 'solicitudes', component: ListaSolicitudesComponent, canActivate: [soloEmpleadas] },
 
   // Solo administradores

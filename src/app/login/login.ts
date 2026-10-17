@@ -76,7 +76,43 @@ export class Login {
       this.cargando = false;
     }
   }
+  async recuperarContrasena() {
+    const { value: correo } = await Swal.fire({
+      title: 'Recuperar contraseña',
+      text: 'Te vamos a enviar un correo con un link para crear una contraseña nueva.',
+      input: 'email',
+      inputValue: this.email,
+      inputPlaceholder: 'tu@correo.com',
+      validationMessage: 'Ingresá un correo válido',
+      showCancelButton: true,
+      confirmButtonText: 'Enviar link',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#58c69d',
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      // Se ejecuta al tocar "Enviar link"; si falla, el error se muestra en el mismo cartel
+      preConfirm: async (correo: string) => {
+        try {
+          await this.auth.recuperarContrasena(correo);
+          return correo;
+        } catch (error) {
+          Swal.showValidationMessage(this.auth.mensajeDeError(error));
+          return false;
+        }
+      },
+    });
 
+    if (!correo) return; // canceló
+
+    // Por seguridad, no decimos si el correo existe o no
+    Swal.fire({
+      icon: 'success',
+      title: 'Revisá tu correo',
+      html: `Si <b>${correo}</b> tiene una cuenta, te llegará un link para crear una contraseña nueva.<br><br>
+             <small>Puede tardar unos minutos. Fijate también en <b>Spam</b> o <b>Correo no deseado</b>.</small>`,
+      confirmButtonColor: '#58c69d',
+    });
+  }
   private async bienvenida(usuario: Usuario) {
     // Cada tipo de usuario va a su pantalla
     const destino = this.auth.inicioDe(usuario);

@@ -1,10 +1,13 @@
 <div class="menu">
   @if (verificando()) {
-   
+
   } @else if (usuario(); as u) {
 
     @switch (u.tipo) {
-      @case ('cliente') { <a routerLink="/solicitud-servicio">Solicitar servicio</a> }
+      @case ('cliente') {
+        <a routerLink="/solicitud-servicio">Solicitar servicio</a>
+        <a routerLink="/mis-solicitudes">Mis solicitudes</a>
+      }
       @case ('empleada') { <a routerLink="/solicitudes">Ver trabajos</a> }
       @case ('admin') { <a routerLink="/admin">Administrar usuarios</a> }
     }

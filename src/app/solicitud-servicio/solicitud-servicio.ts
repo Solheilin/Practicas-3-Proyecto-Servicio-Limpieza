@@ -1,24 +1,28 @@
 import { MenuSesion } from '../menu-sesion/menu-sesion';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-   import { Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../services/auth';
-import { SolicitudesService } from '../services/solicitudes';
+import { SolicitudesApiService } from '../services/solicitudes-api';
+import { DatosSolicitud } from '../services/solicitudes';
 
-
+/**
+ * Formulario de ALTA y MODIFICACIÓN de solicitudes.
+ *  - /solicitud-servicio      → alta (POST a la API)
+ *  - /solicitud-servicio/:id  → modificación (GET para cargarla y PATCH para guardar)
+ */
 @Component({
   selector: 'app-solicitud-servicio',
-      imports: [MenuSesion, FormsModule],
+  imports: [MenuSesion, FormsModule, RouterLink],
   templateUrl: './solicitud-servicio.html',
   styleUrl: './solicitud-servicio.css',
 })
 export class SolicitudServicio implements OnInit {
-  constructor(
-    private router: Router,
-    private auth: AuthService,
-    private solicitudes: SolicitudesService
-  ) {}
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private auth = inject(AuthService);
+  private api = inject(SolicitudesApiService);
 
   nombre = '';
   apellido = '';
@@ -39,21 +43,59 @@ export class SolicitudServicio implements OnInit {
 
   enviando = false;
 
+  /** Si tiene valor, estamos editando esa solicitud */
+  idEdicion: string | null = null;
+
   ngOnInit() {
-    // Completamos con los datos del cliente logueado
-    const u = this.auth.usuarioActual();
-    if (u) {
-      this.nombre = u.nombre;
-      this.apellido = u.apellido;
-      this.correo = u.email;
-      if (u.tipo === 'cliente') {
-        this.telefono = u.telefono;
-        this.direccion = u.direccion;
+    this.idEdicion = this.route.snapshot.paramMap.get('id');
+
+    if (this.idEdicion) {
+      this.cargarParaEditar(this.idEdicion);
+    } else {
+      // Alta: completamos con los datos del cliente logueado
+      const u = this.auth.usuarioActual();
+      if (u) {
+        this.nombre = u.nombre;
+        this.apellido = u.apellido;
+        this.correo = u.email;
+        if (u.tipo === 'cliente') {
+          this.telefono = u.telefono;
+          this.direccion = u.direccion;
+        }
       }
     }
   }
 
-  async contactar() {
+  /** GET: trae la solicitud de la API y llena el formulario */
+  private cargarParaEditar(id: string) {
+    this.api.obtener(id).subscribe({
+      next: s => {
+        if (s.estado !== 'pendiente') {
+          Swal.fire({
+            icon: 'info',
+            title: 'No se puede editar',
+            text: 'Esta solicitud ya fue tomada por una empleada. Coordiná los cambios por el chat.',
+            confirmButtonColor: '#58c69d',
+          });
+          this.router.navigate(['/mis-solicitudes']);
+          return;
+        }
+        Object.assign(this, {
+          nombre: s.nombre, apellido: s.apellido, correo: s.correo, telefono: s.telefono,
+          direccion: s.direccion, requerimientos: s.requerimientos,
+          planchar: s.planchar, lavar: s.lavar, cocina: s.cocina,
+          cuidadoNinos: s.cuidadoNinos, camaAdentro: s.camaAdentro,
+          fecha: s.fecha, horario: s.horario, frecuencia: s.frecuencia,
+        });
+      },
+      error: e => {
+        Swal.fire({ icon: 'error', title: 'Error', text: this.api.mensajeDeError(e), confirmButtonColor: '#e74c3c' });
+        this.router.navigate(['/mis-solicitudes']);
+      },
+    });
+  }
+
+  contactar() {
     if (
       !this.frecuencia ||
       !this.nombre.trim() ||
@@ -76,43 +118,45 @@ export class SolicitudServicio implements OnInit {
     if (!cliente || this.enviando) return;
     this.enviando = true;
 
-    try {
-      // Se guarda en Firestore: la ven todas las empleadas
-      await this.solicitudes.crear(cliente, {
-        nombre: this.nombre.trim(),
-        apellido: this.apellido.trim(),
-        correo: this.correo.trim(),
-        telefono: String(this.telefono),
-        direccion: this.direccion.trim(),
-        requerimientos: this.requerimientos.trim(),
-        planchar: this.planchar,
-        lavar: this.lavar,
-        cocina: this.cocina,
-        cuidadoNinos: this.cuidadoNinos,
-        camaAdentro: this.camaAdentro,
-        fecha: this.fecha,
-        horario: this.horario,
-        frecuencia: this.frecuencia,
-      });
+    const datos: DatosSolicitud = {
+      nombre: this.nombre.trim(),
+      apellido: this.apellido.trim(),
+      correo: this.correo.trim(),
+      telefono: String(this.telefono),
+      direccion: this.direccion.trim(),
+      requerimientos: this.requerimientos.trim(),
+      planchar: this.planchar,
+      lavar: this.lavar,
+      cocina: this.cocina,
+      cuidadoNinos: this.cuidadoNinos,
+      camaAdentro: this.camaAdentro,
+      fecha: this.fecha,
+      horario: this.horario,
+      frecuencia: this.frecuencia,
+    };
 
-      await Swal.fire({
-        title: '¡Solicitud enviada!',
-        text: 'Cuando una empleada tome tu pedido, vas a poder chatear con ella desde "Mensajes".',
-        icon: 'success',
-        confirmButtonText: 'Ver mis solicitudes',
-        confirmButtonColor: '#58c69d'
-      });
-      this.router.navigate(['/chats']);
+    const pedido = this.idEdicion
+      ? this.api.actualizar(this.idEdicion, datos)   // PATCH
+      : this.api.crear(cliente.uid, datos);          // POST
 
-    } catch (e) {
-      Swal.fire({
-        title: 'Error',
-        text: this.solicitudes.mensajeDeError(e),
-        icon: 'error',
-        confirmButtonColor: '#e74c3c'
-      });
-    } finally {
-      this.enviando = false;
-    }
+    pedido.subscribe({
+      next: async () => {
+        this.enviando = false;
+        await Swal.fire({
+          title: this.idEdicion ? '¡Solicitud actualizada!' : '¡Solicitud enviada!',
+          text: this.idEdicion
+            ? 'Los cambios se guardaron correctamente.'
+            : 'Cuando una empleada tome tu pedido, vas a poder chatear con ella desde "Mensajes".',
+          icon: 'success',
+          confirmButtonText: 'Ver mis solicitudes',
+          confirmButtonColor: '#58c69d'
+        });
+        this.router.navigate(['/mis-solicitudes']);
+      },
+      error: e => {
+        this.enviando = false;
+        Swal.fire({ title: 'Error', text: this.api.mensajeDeError(e), icon: 'error', confirmButtonColor: '#e74c3c' });
+      },
+    });
   }
 }
