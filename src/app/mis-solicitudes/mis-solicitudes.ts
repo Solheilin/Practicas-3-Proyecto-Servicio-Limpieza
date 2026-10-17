@@ -6,6 +6,7 @@ import { MenuSesion } from '../menu-sesion/menu-sesion';
 import { AuthService } from '../services/auth';
 import { SolicitudesApiService } from '../services/solicitudes-api';
 import { EstadoSolicitud, Solicitud, serviciosDe } from '../services/solicitudes';
+import { descargarCsv, nombreConFecha } from '../services/csv';
 
 type Filtro = 'todas' | EstadoSolicitud;
 
@@ -62,9 +63,23 @@ export class MisSolicitudes implements OnInit {
         this.cargando.set(false);
       },
     });
+  };
+    /** Descarga a CSV las solicitudes que se ven en pantalla (con el filtro aplicado) */
+  descargarCsv() {
+    descargarCsv(nombreConFecha('mis-solicitudes'), [
+      { titulo: 'Fecha del servicio', valor: (s: Solicitud) => s.fecha.split('-').reverse().join('/') },
+      { titulo: 'Horario', valor: (s: Solicitud) => s.horario },
+      { titulo: 'Frecuencia', valor: (s: Solicitud) => s.frecuencia },
+      { titulo: 'Servicios', valor: (s: Solicitud) => serviciosDe(s) },
+      { titulo: 'Dirección', valor: (s: Solicitud) => s.direccion },
+      { titulo: 'Requerimientos', valor: (s: Solicitud) => s.requerimientos },
+      { titulo: 'Estado', valor: (s: Solicitud) => this.etiquetas[s.estado] },
+      { titulo: 'Empleada', valor: (s: Solicitud) => s.empleadaNombre ?? '' },
+      { titulo: 'Pedida el', valor: (s: Solicitud) => s.creada },
+    ], this.filtradas());
   }
 
-  /** BAJA: DELETE a la API */
+  
   async eliminar(s: Solicitud) {
     const r = await Swal.fire({
       title: '¿Eliminar solicitud?',
@@ -85,7 +100,7 @@ export class MisSolicitudes implements OnInit {
       },
       error: e => {
         Swal.fire({ icon: 'error', title: 'No se pudo eliminar', text: this.api.mensajeDeError(e), confirmButtonColor: '#e74c3c' });
-        this.cargar(); // por si una empleada la tomó mientras tanto
+        this.cargar(); 
       },
     });
   }

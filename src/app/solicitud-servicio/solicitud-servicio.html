@@ -73,9 +73,9 @@
       }
     </div>
 
-    <div class="campo">
+      <div class="campo">
       <label>Teléfono</label>
-      <input type="tel" name="telefono" [(ngModel)]="telefono" #telefonoInput="ngModel" required>
+      <input type="tel" name="telefono" appSoloNumeros [maxDigitos]="15" [(ngModel)]="telefono" #telefonoInput="ngModel" required>
       @if(telefonoInput.invalid && telefonoInput.touched){
         <small class="error">El teléfono es obligatorio</small>
       }

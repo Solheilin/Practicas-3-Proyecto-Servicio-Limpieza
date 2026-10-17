@@ -3,17 +3,29 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 
+
+/** Cómo es cada profesional del catálogo */
+interface Profesional {
+  nombre: string;
+  foto: string;
+  zona: string;
+  experiencia: string;
+  oficio: string;
+  opiniones: number;
+  comentario: string;
+}
+
 @Component({
   selector: 'app-empleadas',
-  imports: [FormsModule,RouterLink, TitleCasePipe],
+  imports: [FormsModule, RouterLink, TitleCasePipe],
   templateUrl: './empleadas.html',
   styleUrl: './empleadas.css',
 })
 export class Empleadas {
 
-textoBusqueda = '';
+  textoBusqueda = '';
 
-  profesionales = [
+  profesionales: Profesional[] = [
     {
       nombre: 'Antonia Cespedes',
       foto: 'usuario-1.png',
@@ -70,10 +82,9 @@ textoBusqueda = '';
     }
   ];
 
-  get profesionalesFiltrados() {
-    return this.profesionales.filter(p =>
+  get profesionalesFiltrados(): Profesional[] {
+    return this.profesionales.filter((p: Profesional) =>
       p.nombre.toLowerCase().includes(this.textoBusqueda.toLowerCase())
     );
   }
-
 }

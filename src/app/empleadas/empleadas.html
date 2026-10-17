@@ -25,9 +25,13 @@
     <div class="barra-superior">
 
         <input
+        
             type="text"
             placeholder="Buscar profesional..."
             [(ngModel)]="textoBusqueda">
+            <button type="button" class="btn-csv" (click)="descargarCatalogo()">
+            ⬇ Descargar catálogo (CSV)
+        </button>
 
 
     </div>

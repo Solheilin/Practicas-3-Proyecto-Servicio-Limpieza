@@ -12,10 +12,12 @@
       <h1>Mis solicitudes</h1>
       <p>Podés editar o eliminar tus pedidos mientras ninguna empleada los haya tomado.</p>
     </div>
-    <div class="botones">
+       <div class="botones">
       <button type="button" class="btn-secundario" (click)="cargar()" [disabled]="cargando()">↻ Actualizar</button>
+      <button type="button" class="btn-secundario" (click)="descargarCsv()" [disabled]="filtradas().length === 0">⬇ Descargar CSV</button>
       <a routerLink="/solicitud-servicio" class="btn-principal">+ Nueva solicitud</a>
     </div>
+    
   </div>
 
   <!-- Filtros por estado -->

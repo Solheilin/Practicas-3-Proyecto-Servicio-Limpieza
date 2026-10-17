@@ -257,3 +257,17 @@ blockquote{
     gap:20px;
     flex-wrap:wrap;
 }
+/* ---------- Descarga CSV ---------- */
+.btn-csv{
+    background:#58c69d;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:.95rem;
+    white-space:nowrap;
+    margin-left:10px;
+}
+
+.btn-csv:hover{ background:#39b98d; }

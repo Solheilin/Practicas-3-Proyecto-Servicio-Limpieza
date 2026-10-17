@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { AuthService } from '../services/auth';
 import { SolicitudesApiService } from '../services/solicitudes-api';
 import { DatosSolicitud } from '../services/solicitudes';
+import { SoloNumeros } from '../solo-numeros';
 
 /**
  * Formulario de ALTA y MODIFICACIÓN de solicitudes.
@@ -14,7 +15,7 @@ import { DatosSolicitud } from '../services/solicitudes';
  */
 @Component({
   selector: 'app-solicitud-servicio',
-  imports: [MenuSesion, FormsModule, RouterLink],
+  imports: [MenuSesion, FormsModule, RouterLink, SoloNumeros],
   templateUrl: './solicitud-servicio.html',
   styleUrl: './solicitud-servicio.css',
 })
