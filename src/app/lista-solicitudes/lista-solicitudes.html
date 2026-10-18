@@ -104,11 +104,11 @@
 
     <div class="barra-historial">
         <div class="filtros">
-            <button type="button" class="filtro" [class.activo]="filtro() === 'proximos'" (click)="filtro.set('proximos')">
-                Próximos ({{ proximos().length }})
+            <button type="button" class="filtro" [class.activo]="filtro() === 'enCurso'" (click)="filtro.set('enCurso')">
+                En curso ({{ enCurso().length }})
             </button>
-            <button type="button" class="filtro" [class.activo]="filtro() === 'realizados'" (click)="filtro.set('realizados')">
-                Realizados ({{ realizados().length }})
+            <button type="button" class="filtro" [class.activo]="filtro() === 'finalizados'" (click)="filtro.set('finalizados')">
+                Finalizados ({{ finalizados().length }})
             </button>
             <button type="button" class="filtro" [class.activo]="filtro() === 'todos'" (click)="filtro.set('todos')">
                 Todos ({{ misTrabajos().length }})
@@ -128,10 +128,10 @@
         <p class="aviso">
             @if (misTrabajos().length === 0) {
                 Todavía no tomaste ningún trabajo. Andá a la pestaña "Disponibles" para empezar.
-            } @else if (filtro() === 'proximos') {
-                No tenés trabajos próximos.
+            } @else if (filtro() === 'enCurso') {
+                No tenés trabajos en curso. ¡Todo finalizado!
             } @else {
-                Todavía no tenés trabajos realizados.
+                Todavía no finalizaste ningún trabajo.
             }
         </p>
     } @else {
@@ -144,7 +144,7 @@
 
                 <div class="cabecera-card">
 
-                    <h3>{{ serviciosDe(t) }}</h3>
+                    <h3>{{ t.servicios }}</h3>
 
                     <p>{{ t.frecuencia }} · {{ t.horario }}</p>
 
@@ -152,26 +152,29 @@
                         📅 {{ t.fecha | date:'dd/MM/yyyy' }}
                     </span>
 
-                    <span class="etiqueta" [class.realizado]="esRealizado(t)">
-                        {{ esRealizado(t) ? 'Realizado' : 'Próximo' }}
+                    <span class="etiqueta"
+                          [class.finalizado]="t.finalizado"
+                          [class.por-finalizar]="estadoDe(t) === 'Por finalizar'">
+                        {{ estadoDe(t) }}
                     </span>
 
                 </div>
 
                 <div class="contenido-card">
 
-                    <p><strong>Cliente:</strong> {{ t.nombre }} {{ t.apellido }}</p>
-
-                    <p><strong>Teléfono:</strong> {{ t.telefono }}</p>
+                    <p><strong>Cliente:</strong> {{ t.cliente }}</p>
 
                     <p><strong>Dirección:</strong> {{ t.direccion }}</p>
 
-                    <blockquote>
-                        {{ t.requerimientos }}
-                    </blockquote>
-
                     <div class="acciones-card">
                         <a class="btn-chat" [routerLink]="['/chats', t.id]">💬 Ir al chat</a>
+                        @if (!t.finalizado) {
+                            <button type="button" class="btn-finalizar"
+                                    (click)="finalizarTrabajo(t)"
+                                    [disabled]="finalizando() !== null">
+                                {{ finalizando() === t.id ? 'Finalizando...' : '✅ Finalizar trabajo' }}
+                            </button>
+                        }
                     </div>
 
                 </div>

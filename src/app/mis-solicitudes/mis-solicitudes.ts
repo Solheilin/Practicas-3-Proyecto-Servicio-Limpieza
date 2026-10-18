@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { MenuSesion } from '../menu-sesion/menu-sesion';
 import { AuthService } from '../services/auth';
 import { SolicitudesApiService } from '../services/solicitudes-api';
+import { PerfilesApiService } from '../services/perfiles-api';
 import { EstadoSolicitud, Solicitud, serviciosDe } from '../services/solicitudes';
 import { descargarCsv, nombreConFecha } from '../services/csv';
 
@@ -19,6 +20,7 @@ type Filtro = 'todas' | EstadoSolicitud;
 })
 export class MisSolicitudes implements OnInit {
   private api = inject(SolicitudesApiService);
+  private perfiles = inject(PerfilesApiService);
   private auth = inject(AuthService);
 
   solicitudes = signal<Solicitud[]>([]);
@@ -31,6 +33,7 @@ export class MisSolicitudes implements OnInit {
   etiquetas: Record<EstadoSolicitud, string> = {
     pendiente: 'Esperando empleada',
     tomada: 'Tomada',
+    finalizada: 'Finalizada',
     cancelada: 'Cancelada',
   };
 
@@ -45,7 +48,7 @@ export class MisSolicitudes implements OnInit {
     this.cargar();
   }
 
-  /** LISTADO: pide las solicitudes a la API */
+  /** LISTADO: pide las solicitudes al backend (GET /api/solicitudes/mias) */
   cargar() {
     const u = this.auth.usuarioActual();
     if (!u) return;
@@ -63,8 +66,9 @@ export class MisSolicitudes implements OnInit {
         this.cargando.set(false);
       },
     });
-  };
-    /** Descarga a CSV las solicitudes que se ven en pantalla (con el filtro aplicado) */
+  }
+
+  /** Descarga a CSV las solicitudes que se ven en pantalla (con el filtro aplicado) */
   descargarCsv() {
     descargarCsv(nombreConFecha('mis-solicitudes'), [
       { titulo: 'Fecha del servicio', valor: (s: Solicitud) => s.fecha.split('-').reverse().join('/') },
@@ -79,7 +83,47 @@ export class MisSolicitudes implements OnInit {
     ], this.filtradas());
   }
 
-  
+  /** El cliente califica un trabajo finalizado (POST /api/resenas) */
+  async calificar(s: Solicitud) {
+    const { value } = await Swal.fire({
+      title: `Calificá a ${s.empleadaNombre ?? 'la empleada'}`,
+      html: `
+        <div class="calificar-swal">
+          <div class="estrellas-swal">
+            ${[5, 4, 3, 2, 1].map(n => `
+              <input type="radio" name="puntaje" id="estrella-${n}" value="${n}">
+              <label for="estrella-${n}" title="${n} estrellas">★</label>`).join('')}
+          </div>
+          <textarea id="comentario-swal" class="swal2-textarea" maxlength="500"
+                    placeholder="Contanos cómo fue el trabajo (opcional)"></textarea>
+        </div>`,
+      showCancelButton: true,
+      confirmButtonText: 'Enviar reseña',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#58c69d',
+      focusConfirm: false,
+      preConfirm: () => {
+        const elegida = document.querySelector<HTMLInputElement>('input[name="puntaje"]:checked');
+        if (!elegida) {
+          Swal.showValidationMessage('Elegí de 1 a 5 estrellas');
+          return false;
+        }
+        const comentario = (document.getElementById('comentario-swal') as HTMLTextAreaElement).value;
+        return { puntaje: Number(elegida.value), comentario };
+      },
+    });
+    if (!value) return;
+
+    this.perfiles.calificar(s.id, value.puntaje, value.comentario).subscribe({
+      next: () => {
+        this.solicitudes.update(lista => lista.map(x => (x.id === s.id ? { ...x, resenada: true } : x)));
+        Swal.fire({ icon: 'success', title: '¡Gracias por tu reseña!', confirmButtonColor: '#58c69d' });
+      },
+      error: e => Swal.fire({ icon: 'error', title: 'No se pudo enviar', text: this.perfiles.mensajeDeError(e), confirmButtonColor: '#e74c3c' }),
+    });
+  }
+
+  /** BAJA: DELETE al backend */
   async eliminar(s: Solicitud) {
     const r = await Swal.fire({
       title: '¿Eliminar solicitud?',
@@ -100,7 +144,7 @@ export class MisSolicitudes implements OnInit {
       },
       error: e => {
         Swal.fire({ icon: 'error', title: 'No se pudo eliminar', text: this.api.mensajeDeError(e), confirmButtonColor: '#e74c3c' });
-        this.cargar(); 
+        this.cargar(); // por si una empleada la tomó mientras tanto
       },
     });
   }

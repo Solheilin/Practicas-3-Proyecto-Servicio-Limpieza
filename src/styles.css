@@ -15,4 +15,12 @@ body {
   padding: 0;
   height: 100%;
 }
-
+/* Estrellas para calificar (ventana de SweetAlert) */
+.calificar-swal{ display:flex; flex-direction:column; align-items:center; }
+.estrellas-swal{ display:flex; flex-direction:row-reverse; justify-content:center; gap:4px; }
+.estrellas-swal input{ display:none; }
+.estrellas-swal label{ font-size:2.6rem; color:#ddd; cursor:pointer; transition:color .15s; }
+.estrellas-swal label:hover,
+.estrellas-swal label:hover ~ label,
+.estrellas-swal input:checked ~ label{ color:#f5b301; }
+.calificar-swal .swal2-textarea{ width:100%; margin:15px 0 0; box-sizing:border-box; }

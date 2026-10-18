@@ -8,7 +8,10 @@
         <a routerLink="/solicitud-servicio">Solicitar servicio</a>
         <a routerLink="/mis-solicitudes">Mis solicitudes</a>
       }
-      @case ('empleada') { <a routerLink="/solicitudes">Ver trabajos</a> }
+           @case ('empleada') {
+        <a routerLink="/solicitudes">Ver trabajos</a>
+        <a routerLink="/perfil-empleada">Mi perfil</a>
+      }
       @case ('admin') { <a routerLink="/admin">Administrar usuarios</a> }
     }
 

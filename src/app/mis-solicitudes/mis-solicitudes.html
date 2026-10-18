@@ -12,12 +12,11 @@
       <h1>Mis solicitudes</h1>
       <p>Podés editar o eliminar tus pedidos mientras ninguna empleada los haya tomado.</p>
     </div>
-       <div class="botones">
+    <div class="botones">
       <button type="button" class="btn-secundario" (click)="cargar()" [disabled]="cargando()">↻ Actualizar</button>
       <button type="button" class="btn-secundario" (click)="descargarCsv()" [disabled]="filtradas().length === 0">⬇ Descargar CSV</button>
       <a routerLink="/solicitud-servicio" class="btn-principal">+ Nueva solicitud</a>
     </div>
-    
   </div>
 
   <!-- Filtros por estado -->
@@ -30,6 +29,9 @@
     </button>
     <button type="button" [class.activo]="filtro() === 'tomada'" (click)="filtro.set('tomada')">
       Tomadas ({{ cantidad('tomada') }})
+    </button>
+    <button type="button" [class.activo]="filtro() === 'finalizada'" (click)="filtro.set('finalizada')">
+      Finalizadas ({{ cantidad('finalizada') }})
     </button>
   </div>
 
@@ -63,8 +65,8 @@
             <p>📅 <b>{{ s.fecha | date:'dd/MM/yyyy' }}</b> · {{ s.horario }} · {{ s.frecuencia }}</p>
             <p>📍 {{ s.direccion }}</p>
             <p class="requerimientos">“{{ s.requerimientos }}”</p>
-            @if (s.estado === 'tomada') {
-              <p>👩 Tomada por <b>{{ s.empleadaNombre }}</b></p>
+            @if (s.estado === 'tomada' || s.estado === 'finalizada') {
+              <p>👩 {{ s.estado === 'finalizada' ? 'Realizada' : 'Tomada' }} por <b>{{ s.empleadaNombre }}</b></p>
             }
           </div>
 
@@ -75,7 +77,17 @@
                 <button type="button" class="btn eliminar" (click)="eliminar(s)">🗑️ Eliminar</button>
               }
               @case ('tomada') {
+                <a class="btn perfil" [routerLink]="['/perfil-empleada', s.empleadaUid]">👩 Ver perfil</a>
                 <a class="btn chat" [routerLink]="['/chats', s.id]">💬 Ir al chat</a>
+              }
+              @case ('finalizada') {
+                <a class="btn perfil" [routerLink]="['/perfil-empleada', s.empleadaUid]">👩 Ver perfil</a>
+                @if (s.resenada) {
+                  <span class="calificada">✅ Calificada</span>
+                } @else {
+                  <button type="button" class="btn calificar" (click)="calificar(s)">⭐ Calificar</button>
+                }
+                <a class="btn chat" [routerLink]="['/chats', s.id]">💬 Ver chat</a>
               }
             }
           </div>

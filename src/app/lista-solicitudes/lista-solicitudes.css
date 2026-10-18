@@ -339,3 +339,24 @@ button:hover {
 }
 
 .btn-chat:hover{ background:#39b98d; }
+
+/* ---------- Finalizar trabajo ---------- */
+.etiqueta.finalizado{ background:#f3eaf8; color:#e74c3c; }
+.etiqueta.por-finalizar{ background:#fff3e0; color:#e67e22; }
+
+.acciones-card{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+.acciones-card .btn-finalizar{
+    background:#e74c3c;
+    color:white;
+    border:none;
+    padding:8px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    width:auto;
+    margin:0;
+}
+
+.acciones-card .btn-finalizar:hover{ background:#e74c3c; }
+.acciones-card .btn-finalizar:disabled{ opacity:.6; cursor:not-allowed; }
+.etiqueta.finalizado{ background:#fdecea; color:#c0392b; }

@@ -122,3 +122,57 @@ h2{ font-size:1.15rem; color:#2f3e46; margin:0 0 5px; }
 @media(max-width:768px){
     .navbar{ padding:15px 20px; }
 }
+/* ---------- Chats de trabajos finalizados (en rojo) ---------- */
+.chat-item.finalizado{
+    background:#fdecea;
+    border-left:5px solid #e74c3c;
+}
+
+.chat-item.finalizado:hover{ background:#fadbd8; }
+
+.chat-item.finalizado .avatar{ background:#e74c3c; }
+
+.chat-item.finalizado .detalle{ color:#c0392b; }
+
+.etiqueta-finalizado{
+    background:#e74c3c;
+    color:white;
+    font-size:.7rem;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:10px;
+    margin-left:6px;
+    vertical-align:middle;
+}
+.chat-item{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:16px 20px;
+    border-bottom:1px solid #eee;
+    text-decoration:none;
+    color:inherit;
+    transition:background .15s;
+}
+/* ---------- Chats de trabajos finalizados (en rojo) ---------- */
+.chat-item.finalizado{
+    background:#fdecea;
+    border-left:5px solid #e74c3c;
+}
+
+.chat-item.finalizado:hover{ background:#fadbd8; }
+
+.chat-item.finalizado .avatar{ background:#e74c3c; }
+
+.chat-item.finalizado .detalle{ color:#c0392b; }
+
+.etiqueta-finalizado{
+    background:#e74c3c;
+    color:white;
+    font-size:.7rem;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:10px;
+    margin-left:6px;
+    vertical-align:middle;
+}

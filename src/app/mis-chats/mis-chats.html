@@ -52,12 +52,15 @@
       </div>
     } @else {
       @for (chat of chats(); track chat.id) {
-        <a class="chat-item" [routerLink]="['/chats', chat.id]">
+        <a class="chat-item" [class.finalizado]="chat.finalizado" [routerLink]="['/chats', chat.id]">
           <span class="avatar">{{ inicial(chat) }}</span>
 
           <div class="info">
             <div class="fila">
-              <strong>{{ otraPersona(chat) }}</strong>
+              <strong>
+                {{ otraPersona(chat) }}
+                @if (chat.finalizado) { <span class="etiqueta-finalizado">Finalizado</span> }
+              </strong>
               <small>{{ chat.ultimoMensajeFecha | date:'dd/MM HH:mm' }}</small>
             </div>
             <span class="detalle">{{ chat.resumen.servicios }} · 📅 {{ chat.resumen.fecha | date:'dd/MM/yyyy' }}</span>

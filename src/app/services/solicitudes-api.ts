@@ -18,6 +18,7 @@ export const API_URL = 'http://localhost:3000/api';
  *   Alta                     → POST   /api/solicitudes
  *   Modificación             → PUT    /api/solicitudes/:id
  *   Tomar un trabajo         → POST   /api/solicitudes/:id/tomar
+ *   Finalizar un trabajo     → POST   /api/solicitudes/:id/finalizar
  *   Baja                     → DELETE /api/solicitudes/:id
  */
 @Injectable({
@@ -68,6 +69,12 @@ export class SolicitudesApiService {
   /** POST: una empleada toma un trabajo */
   tomar(id: string): Observable<Solicitud> {
     return this.conToken(headers => this.http.post<SolicitudJson>(`${this.base}/${id}/tomar`, {}, { headers }))
+      .pipe(map(aSolicitud));
+  }
+
+  /** POST: la empleada marca el trabajo como finalizado */
+  finalizar(id: string): Observable<Solicitud> {
+    return this.conToken(headers => this.http.post<SolicitudJson>(`${this.base}/${id}/finalizar`, {}, { headers }))
       .pipe(map(aSolicitud));
   }
 

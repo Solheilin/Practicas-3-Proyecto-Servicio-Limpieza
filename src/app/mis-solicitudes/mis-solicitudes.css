@@ -123,3 +123,12 @@
     .navbar{ padding:15px 20px; }
     .encabezado{ flex-direction:column; align-items:flex-start; }
 }
+.btn.calificar{ background:#f5b301; }
+.btn.perfil{ background:#2f3e46; }
+.calificada{ color:#2e9a72; font-weight:600; font-size:.9rem; align-self:center; }
+
+.estado.finalizada{ background:#f3eaf8; color:#7d3c98; }
+.tarjeta.finalizada{ border-left-color:#8e44ad; }
+.btn.calificar{ background:#f5b301; }
+.btn.perfil{ background:#2f3e46; }
+.calificada{ color:#2e9a72; font-weight:600; font-size:.9rem; align-self:center; }

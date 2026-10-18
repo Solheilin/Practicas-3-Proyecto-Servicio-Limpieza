@@ -6,7 +6,7 @@ import {
 import { db } from '../firebase';
 import { Usuario } from './auth';
 
-export type EstadoSolicitud = 'pendiente' | 'tomada' | 'cancelada';
+export type EstadoSolicitud = 'pendiente' | 'tomada' | 'cancelada' |'finalizada';
 
 export interface Solicitud {
   id: string;
@@ -31,10 +31,11 @@ export interface Solicitud {
   empleadaUid?: string;
   empleadaNombre?: string;
   creada?: Date;
+    resenada?: boolean;
 }
 
 /** Lo que completa el cliente en el formulario. */
-export type DatosSolicitud = Omit<Solicitud, 'id' | 'clienteUid' | 'estado' | 'empleadaUid' | 'empleadaNombre' | 'creada'>;
+export type DatosSolicitud = Omit<Solicitud, 'id' | 'clienteUid' | 'estado' | 'empleadaUid' | 'empleadaNombre' | 'creada' | 'resenada'>;
 
 const COLECCION = 'solicitudes';
 

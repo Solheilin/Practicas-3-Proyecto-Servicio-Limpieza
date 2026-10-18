@@ -10,6 +10,7 @@ import { AdminUsuarios } from './admin-usuarios/admin-usuarios';
 import { MisChats } from './mis-chats/mis-chats';
 import { Chat } from './chat/chat';
 import { MisSolicitudes } from './mis-solicitudes/mis-solicitudes';
+import { PerfilEmpleadaComponent } from './perfil-empleada/perfil-empleada';
 import { soloAdmin, soloClientes, soloEmpleadas, soloInvitados, soloLogueados } from './guards';
 
 export const routes: Routes = [
@@ -29,6 +30,10 @@ export const routes: Routes = [
 
   // Solo empleadas
   { path: 'solicitudes', component: ListaSolicitudesComponent, canActivate: [soloEmpleadas] },
+  { path: 'perfil-empleada', component: PerfilEmpleadaComponent, canActivate: [soloEmpleadas] },  // su propio perfil
+
+  // Perfil de una empleada (lo puede ver un cliente)
+  { path: 'perfil-empleada/:uid', component: PerfilEmpleadaComponent, canActivate: [soloLogueados] },
 
   // Solo administradores
   { path: 'admin', component: AdminUsuarios, canActivate: [soloAdmin] },

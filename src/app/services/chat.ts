@@ -25,6 +25,8 @@ export interface Chat {
   ultimoMensaje: string;
   ultimoAutorUid: string;
   ultimoMensajeFecha?: Date;
+  /** true cuando la empleada marcó el trabajo como terminado */
+  finalizado?: boolean;
 }
 
 export interface Mensaje {
@@ -131,6 +133,32 @@ export class ChatService {
     lote.update(doc(db, 'chats', chatId), {
       ultimoMensaje: limpio.slice(0, 100),
       ultimoAutorUid: autor.uid,
+      ultimoMensajeFecha: serverTimestamp(),
+    });
+
+    await lote.commit();
+  }
+
+  /**
+   * La empleada marca el trabajo como finalizado: se guarda en el chat
+   * y se manda un mensaje automático para que el cliente se entere.
+   */
+  async marcarFinalizado(chatId: string, empleada: Usuario) {
+    const texto = '✅ Trabajo finalizado. ¡Gracias por confiar en nosotros!';
+    const lote = writeBatch(db);
+
+    lote.set(doc(collection(db, 'chats', chatId, 'mensajes')), {
+      texto,
+      autorUid: empleada.uid,
+      autorNombre: empleada.nombre,
+      fecha: serverTimestamp(),
+    });
+
+    lote.update(doc(db, 'chats', chatId), {
+      finalizado: true,
+      finalizadoFecha: serverTimestamp(),
+      ultimoMensaje: texto,
+      ultimoAutorUid: empleada.uid,
       ultimoMensajeFecha: serverTimestamp(),
     });
 

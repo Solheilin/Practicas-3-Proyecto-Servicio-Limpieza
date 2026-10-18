@@ -1,92 +1,172 @@
-<header class="hero">
-
+<header class="barra">
   <nav class="navbar">
-    <div class="logo">
-      <h2>Limpieza</h2>
-    </div>
-
-    <div class="menu">
-      <a routerLink="/">Inicio</a>
-    </div>
+    <div class="logo"><h2>Limpieza</h2></div>
+    <app-menu-sesion />
   </nav>
-
-  <div class="hero-content">
-    <h1>Mi perfil</h1>
-  </div>
-
 </header>
 
+<main class="panel">
 
-<div class="perfil-container">
+  @if (cargando()) {
+    <p class="mensaje">Cargando perfil...</p>
+  } @else if (error()) {
+    <p class="mensaje error">{{ error() }}</p>
+  } @else if (perfil(); as p) {
 
-  @if(perfil){
-
-    <div class="perfil-card">
-
-      <div class="perfil-foto">
-        👩‍🦰
+    <!-- ===================== ENCABEZADO ===================== -->
+    <section class="tarjeta cabecera">
+      <div class="foto">
+        @if (p.foto) {
+          <img [src]="p.foto" [alt]="p.nombre">
+        } @else {
+          <span class="sin-foto">{{ inicial() }}</span>
+        }
       </div>
 
-      <h2>
-        {{ perfil.nombre }} {{ perfil.apellido }}
-      </h2>
+      <div class="datos">
+        <h1>{{ p.nombre || 'Empleada' }}</h1>
 
-      <p class="estado">
-        ✓ Perfil registrado
-      </p>
+        <p class="calificacion">
+          @if (p.resenas.cantidad > 0) {
+            <span class="estrellas">{{ estrellas(p.resenas.promedio) }}</span>
+            <b>{{ p.resenas.promedio }}</b> · {{ p.resenas.cantidad }} {{ p.resenas.cantidad === 1 ? 'reseña' : 'reseñas' }}
+          } @else {
+            <span class="gris">Todavía no tiene reseñas</span>
+          }
+        </p>
 
+        <p class="experiencia">🏅 <b>{{ p.aniosExperiencia }}</b> {{ p.aniosExperiencia === 1 ? 'año' : 'años' }} de experiencia</p>
 
-      <div class="perfil-datos">
-
-        <div class="dato">
-          <strong>DNI</strong>
-          <span>{{ perfil.dni }}</span>
-        </div>
-
-        <div class="dato">
-          <strong>Teléfono</strong>
-          <span>{{ perfil.telefono }}</span>
-        </div>
-
-        <div class="dato">
-          <strong>Correo electrónico</strong>
-          <span>{{ perfil.email }}</span>
-        </div>
-
+        @if (p.descripcion) {
+          <p class="descripcion">“{{ p.descripcion }}”</p>
+        }
       </div>
 
+      @if (esMio() && !editando()) {
+        <button type="button" class="btn-editar" (click)="empezarEdicion()">✏️ Editar perfil</button>
+      }
+    </section>
 
-      <div class="perfil-acciones">
+    <!-- ===================== FORMULARIO DE EDICIÓN ===================== -->
+    @if (editando()) {
+      <section class="tarjeta">
+        <h2>{{ p.completo ? 'Editar mi perfil' : 'Completá tu perfil' }}</h2>
+        @if (!p.completo) {
+          <p class="gris">Así los clientes van a poder conocerte antes de que tomes su trabajo.</p>
+        }
 
-        <button>
-          Editar perfil
-        </button>
+        <div class="form">
+          <div class="campo foto-campo">
+            <div class="foto chica">
+              @if (formFoto) { <img [src]="formFoto" alt="Vista previa"> } @else { <span class="sin-foto">{{ inicial() }}</span> }
+            </div>
+            <div>
+              <label>Foto de perfil</label>
+              <input type="file" accept="image/*" (change)="elegirFoto($event)">
+              @if (formFoto) {
+                <button type="button" class="link" (click)="formFoto = null">Quitar foto</button>
+              }
+            </div>
+          </div>
 
-        <button routerLink="/">
-          Volver al inicio
-        </button>
+          <div class="campo">
+            <label>Años de experiencia</label>
+            <input type="number" min="0" max="70" name="anios" [(ngModel)]="formAnios">
+          </div>
 
+          <div class="campo">
+            <label>Sobre mí</label>
+            <textarea rows="3" maxlength="600" name="descripcion" [(ngModel)]="formDescripcion"
+                      placeholder="Ej: Soy responsable y puntual, me encanta dejar todo impecable..."></textarea>
+          </div>
+
+          <div class="campo">
+            <label>Servicios que ofrezco</label>
+            <div class="checks">
+              @for (s of servicios; track s.clave) {
+                <label class="check" [class.marcado]="formServicios.has(s.clave)">
+                  <input type="checkbox" [checked]="formServicios.has(s.clave)" (change)="alternarServicio(s.clave)">
+                  {{ s.icono }} {{ s.nombre }}
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="acciones">
+            @if (p.completo) {
+              <button type="button" class="btn-secundario" (click)="editando.set(false)">Cancelar</button>
+            }
+            <button type="button" class="btn-principal" (click)="guardar()" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : 'Guardar perfil' }}
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- ===================== TRABAJOS ===================== -->
+    <section class="numeros">
+      <div class="dato">
+        <span class="numero">{{ p.trabajos.enCurso }}</span>
+        <span>Trabajos en curso</span>
       </div>
+      <div class="dato">
+        <span class="numero">{{ p.trabajos.finalizados }}</span>
+        <span>Trabajos finalizados</span>
+      </div>
+      <div class="dato">
+        <span class="numero">{{ p.resenas.cantidad > 0 ? p.resenas.promedio : '—' }}</span>
+        <span>Calificación promedio</span>
+      </div>
+    </section>
 
-    </div>
+    @if (esMio()) {
+      <p class="ir-trabajos"><a routerLink="/solicitudes">📋 Ver mis trabajos y trabajos disponibles →</a></p>
+    }
 
+    <!-- ===================== SERVICIOS ===================== -->
+    <section class="tarjeta">
+      <h2>Servicios</h2>
+      <div class="servicios">
+        <div>
+          <h3 class="si">✅ Ofrece</h3>
+          @for (s of ofrece(); track s.clave) {
+            <p class="servicio si">{{ s.icono }} {{ s.nombre }}</p>
+          } @empty {
+            <p class="gris">Todavía no cargó sus servicios.</p>
+          }
+        </div>
+        <div>
+          <h3 class="no">❌ No ofrece</h3>
+          @for (s of noOfrece(); track s.clave) {
+            <p class="servicio no">{{ s.icono }} {{ s.nombre }}</p>
+          } @empty {
+            <p class="gris">Ofrece todos los servicios.</p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== RESEÑAS ===================== -->
+    <section class="tarjeta">
+      <h2>Reseñas ({{ resenas().length }})</h2>
+
+      @for (r of resenas(); track r.id) {
+        <article class="resena">
+          <div class="resena-cabecera">
+            <strong>{{ r.clienteNombre }}</strong>
+            <span class="estrellas">{{ estrellas(r.puntaje) }}</span>
+          </div>
+          @if (r.comentario) {
+            <p>{{ r.comentario }}</p>
+          }
+          <small>Trabajo del {{ r.fechaTrabajo | date:'dd/MM/yyyy' }}</small>
+        </article>
+      } @empty {
+        <p class="gris">
+          {{ esMio() ? 'Cuando finalices trabajos, los clientes van a poder dejarte una reseña.' : 'Todavía no tiene reseñas.' }}
+        </p>
+      }
+    </section>
   }
-  @else {
-
-    <div class="sin-perfil">
-
-      <h2>No encontramos tu perfil</h2>
-
-      <p>
-        Primero debes registrarte como empleada.
-      </p>
-
-      <button routerLink="/registro-empleada">
-        Registrarme
-      </button>
-
-    </div>
-
-  }
-
-</div>
+</main>

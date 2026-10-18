@@ -6,16 +6,29 @@ import Swal from 'sweetalert2';
 import { AuthService } from '../services/auth';
 import { Solicitud, serviciosDe } from '../services/solicitudes';
 import { SolicitudesApiService } from '../services/solicitudes-api';
-import { ChatService } from '../services/chat';
+import { Chat, ChatService } from '../services/chat';
+import { Unsubscribe } from 'firebase/firestore';
 import { descargarCsv, nombreConFecha } from '../services/csv';
 
 type Vista = 'disponibles' | 'mios';
-type FiltroHistorial = 'proximos' | 'realizados' | 'todos';
+
+/** Un trabajo del historial de la empleada (se arma con los datos de su chat) */
+interface Trabajo {
+  id: string;
+  cliente: string;
+  fecha: string;       // 'aaaa-mm-dd'
+  horario: string;
+  frecuencia: string;
+  direccion: string;
+  servicios: string;
+  finalizado: boolean;
+}
+type FiltroHistorial = 'enCurso' | 'finalizados' | 'todos';
 
 /**
  * Página de la EMPLEADA, con dos pestañas:
  *  - Disponibles  → trabajos sin empleada (GET /api/solicitudes/pendientes)
- *  - Mis trabajos → historial de los que tomó (GET /api/solicitudes/tomadas)
+ *  - Mis trabajos → historial de los que tomó (cada trabajo tomado tiene su chat en Firestore)
  */
 @Component({
   selector: 'app-lista-solicitudes',
@@ -40,28 +53,30 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
   tomando = signal<string | null>(null);
 
   // ---------- Pestaña "Mis trabajos" ----------
-  misTrabajos = signal<Solicitud[]>([]);
+  misTrabajos = signal<Trabajo[]>([]);
   cargandoMios = signal(true);
   errorMios = signal('');
-  filtro = signal<FiltroHistorial>('proximos');
+  filtro = signal<FiltroHistorial>('enCurso');
+  /** id del trabajo que se está finalizando (para deshabilitar su botón) */
+  finalizando = signal<string | null>(null);
 
   private hoy = new Date().toISOString().slice(0, 10); // 'aaaa-mm-dd'
 
-  /** Próximos: de hoy en adelante, el más cercano primero */
-  proximos = computed(() =>
-    this.misTrabajos().filter(t => t.fecha >= this.hoy).sort((a, b) => a.fecha.localeCompare(b.fecha))
+  /** En curso: tomados y todavía no finalizados, el más cercano primero */
+  enCurso = computed(() =>
+    this.misTrabajos().filter(t => !t.finalizado).sort((a, b) => a.fecha.localeCompare(b.fecha))
   );
 
-  /** Realizados: fechas pasadas, el más reciente primero */
-  realizados = computed(() =>
-    this.misTrabajos().filter(t => t.fecha < this.hoy).sort((a, b) => b.fecha.localeCompare(a.fecha))
+  /** Finalizados: el más reciente primero */
+  finalizados = computed(() =>
+    this.misTrabajos().filter(t => t.finalizado).sort((a, b) => b.fecha.localeCompare(a.fecha))
   );
 
   historialVisible = computed(() => {
     switch (this.filtro()) {
-      case 'proximos': return this.proximos();
-      case 'realizados': return this.realizados();
-      default: return [...this.proximos(), ...this.realizados()];
+      case 'enCurso': return this.enCurso();
+      case 'finalizados': return this.finalizados();
+      default: return [...this.enCurso(), ...this.finalizados()];
     }
   });
 
@@ -69,6 +84,7 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
 
   /** La lista de disponibles se vuelve a pedir cada 20 segundos */
   private intervalo?: ReturnType<typeof setInterval>;
+  private desuscribirChats?: Unsubscribe;
 
   ngOnInit(): void {
     this.cargar();
@@ -78,10 +94,13 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.intervalo);
+    this.desuscribirChats?.();
   }
 
-  esRealizado(t: Solicitud) {
-    return t.fecha < this.hoy;
+  /** Texto de la etiqueta de cada trabajo */
+  estadoDe(t: Trabajo): 'Finalizado' | 'Por finalizar' | 'Próximo' {
+    if (t.finalizado) return 'Finalizado';
+    return t.fecha < this.hoy ? 'Por finalizar' : 'Próximo';
   }
 
   /** GET /api/solicitudes/pendientes */
@@ -101,21 +120,47 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** GET /api/solicitudes/tomadas */
+  /**
+   * Historial: cada trabajo que tomó la empleada tiene su chat con el cliente.
+   * Se escuchan sus chats en tiempo real y se arma la lista con los datos de cada uno.
+   */
   cargarMios() {
+    const empleada = this.auth.usuarioActual();
+    if (!empleada) return;
+
+    this.desuscribirChats?.();
     this.cargandoMios.set(true);
 
-    this.api.listarTomadas().subscribe({
-      next: lista => {
-        this.misTrabajos.set(lista);
+    this.desuscribirChats = this.chatService.escucharMisChats(
+      empleada,
+      chats => {
+        this.misTrabajos.set(
+          chats
+            .filter(c => c.empleadaUid === empleada.uid)   // solo los que tomó ella
+            .map(c => this.aTrabajo(c))
+        );
         this.errorMios.set('');
         this.cargandoMios.set(false);
       },
-      error: e => {
-        this.errorMios.set(this.api.mensajeDeError(e));
+      e => {
+        console.error(e);
+        this.errorMios.set('No se pudo cargar tu historial.');
         this.cargandoMios.set(false);
-      },
-    });
+      }
+    );
+  }
+
+  private aTrabajo(c: Chat): Trabajo {
+    return {
+      id: c.id,
+      cliente: c.clienteNombre,
+      fecha: c.resumen?.fecha ?? '',
+      horario: c.resumen?.horario ?? '',
+      frecuencia: c.resumen?.frecuencia ?? '',
+      direccion: c.resumen?.direccion ?? '',
+      servicios: c.resumen?.servicios ?? '',
+      finalizado: !!c.finalizado,
+    };
   }
 
   async tomarTrabajo(solicitud: Solicitud) {
@@ -144,7 +189,6 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
           // 2) Se abre el chat en Firestore
           const chatId = await this.chatService.crearChat(tomada, empleada);
           this.solicitudes.update(lista => lista.filter(s => s.id !== solicitud.id));
-          this.misTrabajos.update(lista => [...lista, tomada]); // pasa al historial
 
           await Swal.fire({
             icon: 'success',
@@ -174,17 +218,67 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * La empleada termina el trabajo:
+   *  1) en MySQL la solicitud pasa a "finalizada" (POST /api/solicitudes/:id/finalizar)
+   *  2) en el chat se marca como finalizado y se avisa al cliente con un mensaje
+   */
+  async finalizarTrabajo(t: Trabajo) {
+    const empleada = this.auth.usuarioActual();
+    if (!empleada) return;
+
+    const r = await Swal.fire({
+      title: '¿Finalizar este trabajo?',
+      html: `Vas a marcar como terminado el trabajo de <b>${t.cliente}</b> del
+             <b>${t.fecha.split('-').reverse().join('/')}</b>.<br><br>
+             Se le va a avisar al cliente por el chat.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, finalizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#e74c3c',
+    });
+    if (!r.isConfirmed) return;
+
+    this.finalizando.set(t.id);
+
+    const marcarEnChat = async () => {
+      try {
+        await this.chatService.marcarFinalizado(t.id, empleada);
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Trabajo finalizado', showConfirmButton: false, timer: 2500 });
+      } catch (e) {
+        console.error(e);
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el chat. Revisá las reglas de Firestore.', confirmButtonColor: '#e74c3c' });
+      } finally {
+        this.finalizando.set(null);
+      }
+    };
+
+    this.api.finalizar(t.id).subscribe({
+      next: () => marcarEnChat(),
+      error: e => {
+        // 404: es un trabajo viejo que estaba en Firebase y no existe en MySQL → se finaliza solo en el chat
+        // 409 "ya estaba finalizado": se sincroniza el chat igual
+                if ((e?.status === 404 && e?.error?.error === 'La solicitud no existe.') || e?.status === 409) {
+          marcarEnChat();
+          return;
+        }
+        this.finalizando.set(null);
+        Swal.fire({ icon: 'error', title: 'No se pudo finalizar', text: this.api.mensajeDeError(e), confirmButtonColor: '#e74c3c' });
+      },
+    });
+  }
+
   /** Descarga el historial que se ve en pantalla */
   descargarHistorial() {
     descargarCsv(nombreConFecha('mis-trabajos'), [
-      { titulo: 'Fecha', valor: (t: Solicitud) => t.fecha.split('-').reverse().join('/') },
-      { titulo: 'Horario', valor: (t: Solicitud) => t.horario },
-      { titulo: 'Frecuencia', valor: (t: Solicitud) => t.frecuencia },
-      { titulo: 'Cliente', valor: (t: Solicitud) => `${t.nombre} ${t.apellido}` },
-      { titulo: 'Teléfono', valor: (t: Solicitud) => t.telefono },
-      { titulo: 'Dirección', valor: (t: Solicitud) => t.direccion },
-      { titulo: 'Servicios', valor: (t: Solicitud) => serviciosDe(t) },
-      { titulo: 'Estado', valor: (t: Solicitud) => (this.esRealizado(t) ? 'Realizado' : 'Próximo') },
+      { titulo: 'Fecha', valor: (t: Trabajo) => t.fecha.split('-').reverse().join('/') },
+      { titulo: 'Horario', valor: (t: Trabajo) => t.horario },
+      { titulo: 'Frecuencia', valor: (t: Trabajo) => t.frecuencia },
+      { titulo: 'Cliente', valor: (t: Trabajo) => t.cliente },
+      { titulo: 'Dirección', valor: (t: Trabajo) => t.direccion },
+      { titulo: 'Servicios', valor: (t: Trabajo) => t.servicios },
+      { titulo: 'Estado', valor: (t: Trabajo) => this.estadoDe(t) },
     ], this.historialVisible());
   }
 }
