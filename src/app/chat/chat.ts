@@ -7,7 +7,7 @@ import { MenuSesion } from '../menu-sesion/menu-sesion';
 import { AuthService } from '../services/auth';
 import { Chat as DatosChat, ChatService, Mensaje } from '../services/chat';
 
-
+/** Vista de una conversación con burbujas, tipo WhatsApp. */
 @Component({
   selector: 'app-chat',
   imports: [MenuSesion, RouterLink, FormsModule, DatePipe],
@@ -58,16 +58,26 @@ export class Chat implements OnInit, OnDestroy {
 
     this.desuscripciones.push(
       this.chatService.escucharChat(this.chatId, chat => {
+        const primeraVez = !this.chat();
         this.chat.set(chat);
         if (!chat) this.error.set('Esta conversación no existe.');
         this.cargando.set(false);
+        if (primeraVez) this.marcarComoLeido();
       }, alError),
 
       this.chatService.escucharMensajes(this.chatId, mensajes => {
         this.mensajes.set(mensajes);
         this.bajarAlFinal();
+        this.marcarComoLeido(); // si llega un mensaje mientras está mirando, ya queda leído
       }, alError)
     );
+  }
+
+  /** Avisa que el usuario está viendo el chat, así deja de figurar como "no leído" */
+  private marcarComoLeido() {
+    const uid = this.usuario()?.uid;
+    if (!uid || this.soloLectura()) return; // el admin solo mira
+    this.chatService.marcarLeido(this.chatId, uid).catch(e => console.error(e));
   }
 
   ngOnDestroy() {
@@ -122,6 +132,7 @@ export class Chat implements OnInit, OnDestroy {
   }
 
   private bajarAlFinal() {
+    // Esperamos a que Angular dibuje los mensajes nuevos
     setTimeout(() => {
       const zona = this.zonaMensajes?.nativeElement;
       if (zona) zona.scrollTop = zona.scrollHeight;

@@ -82,3 +82,36 @@
         display:none;
     }
 }
+
+/* ---------- Burbuja de mensajes sin leer ---------- */
+.link-mensajes{ position:relative; }
+
+.burbuja{
+    display:inline-block;
+    min-width:20px;
+    height:20px;
+    padding:0 6px;
+    margin-left:4px;
+    border-radius:10px;
+    background:#e74c3c;
+    color:white;
+    font-size:.75rem;
+    font-weight:bold;
+    line-height:20px;
+    text-align:center;
+    vertical-align:middle;
+    animation:latido 1.5s ease-in-out infinite;
+}
+
+@keyframes latido{
+    0%, 100%{ transform:scale(1); }
+    50%{ transform:scale(1.15); }
+}
+/* Contador de chats con mensajes nuevos: "Mensajes (1)" */
+.link-mensajes.con-nuevos{ font-weight:700; }
+
+.contador{
+    color:#ffd166;
+    font-weight:700;
+    margin-left:2px;
+}

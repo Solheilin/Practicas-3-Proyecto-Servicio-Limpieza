@@ -11,6 +11,8 @@ export const API_URL = 'http://localhost:3000/api';
  * CRUD de SOLICITUDES DE SERVICIO contra el BACKEND PROPIO, usando HttpClient.
  * Los datos se guardan en MySQL.
  *
+ *   Listar todas (admin)     → GET    /api/solicitudes
+ *   Rechazos (admin)         → GET    /api/solicitudes/rechazos
  *   Listar mis solicitudes   → GET    /api/solicitudes/mias
  *   Trabajos disponibles     → GET    /api/solicitudes/pendientes
  *   Historial de la empleada → GET    /api/solicitudes/tomadas
@@ -19,6 +21,7 @@ export const API_URL = 'http://localhost:3000/api';
  *   Modificación             → PUT    /api/solicitudes/:id
  *   Tomar un trabajo         → POST   /api/solicitudes/:id/tomar
  *   Finalizar un trabajo     → POST   /api/solicitudes/:id/finalizar
+ *   Rechazar un trabajo      → POST   /api/solicitudes/:id/rechazar
  *   Baja                     → DELETE /api/solicitudes/:id
  */
 @Injectable({
@@ -29,6 +32,17 @@ export class SolicitudesApiService {
   private readonly base = `${API_URL}/solicitudes`;
 
   // ---------- Operaciones del CRUD ----------
+
+  /** GET: todas las solicitudes (solo el administrador, para las estadísticas) */
+  listarTodas(): Observable<Solicitud[]> {
+    return this.conToken(headers => this.http.get<SolicitudJson[]>(this.base, { headers }))
+      .pipe(map(lista => lista.map(aSolicitud)));
+  }
+
+  /** GET: historial de rechazos (solo el administrador, para las estadísticas) */
+  listarRechazos(): Observable<Rechazo[]> {
+    return this.conToken(headers => this.http.get<Rechazo[]>(`${this.base}/rechazos`, { headers }));
+  }
 
   /** GET: solicitudes del cliente logueado */
   listarMias(): Observable<Solicitud[]> {
@@ -78,6 +92,12 @@ export class SolicitudesApiService {
       .pipe(map(aSolicitud));
   }
 
+  /** POST: la empleada rechaza (devuelve) un trabajo que había tomado */
+  rechazar(id: string): Observable<Solicitud> {
+    return this.conToken(headers => this.http.post<SolicitudJson>(`${this.base}/${id}/rechazar`, {}, { headers }))
+      .pipe(map(aSolicitud));
+  }
+
   /** DELETE: baja de una solicitud (solo si sigue pendiente) */
   eliminar(id: string): Observable<void> {
     return this.conToken(headers => this.http.delete<void>(`${this.base}/${id}`, { headers }));
@@ -104,6 +124,15 @@ export class SolicitudesApiService {
     console.error(e);
     return 'Ocurrió un error con el servidor. Intentá de nuevo.';
   }
+}
+
+/** Un rechazo: una empleada devolvió un trabajo que había tomado */
+export interface Rechazo {
+  id: string;
+  solicitudId: string;
+  empleadaUid: string;
+  empleadaNombre: string;
+  rechazadaEn?: string;
 }
 
 /** Así llega una solicitud desde el backend (las fechas vienen como texto) */

@@ -1,5 +1,8 @@
 /* ---------- Barra superior ---------- */
-.barra{ background:#2f3e46; color:white; }
+.barra{
+    background:#2f3e46;
+    color:white;
+}
 
 .navbar{
     display:flex;
@@ -8,7 +11,10 @@
     padding:15px 60px;
 }
 
-.logo h2{ margin:0; font-size:1.8rem; }
+.logo h2{
+    margin:0;
+    font-size:1.8rem;
+}
 
 .etiqueta-admin{
     font-size:.8rem;
@@ -34,8 +40,15 @@
     margin-bottom:25px;
 }
 
-.encabezado h1{ margin:0 0 5px; color:#2f3e46; }
-.encabezado p{ margin:0; color:#777; }
+.encabezado h1{
+    margin:0 0 5px;
+    color:#2f3e46;
+}
+
+.encabezado p{
+    margin:0;
+    color:#777;
+}
 
 .btn-recargar{
     background:white;
@@ -44,6 +57,7 @@
     border-radius:8px;
     cursor:pointer;
 }
+
 .btn-recargar:hover{ background:#f3f3f3; }
 
 /* ---------- Tarjetas ---------- */
@@ -69,11 +83,17 @@
     font-size:.95rem;
     transition:.2s;
 }
+
 .tarjeta:hover{ transform:translateY(-2px); }
+
 .tarjeta.activa{ border-color:#58c69d; }
 .tarjeta.alerta.activa{ border-color:#f39c12; }
 
-.numero{ font-size:2rem; font-weight:bold; color:#2f3e46; }
+.numero{
+    font-size:2rem;
+    font-weight:bold;
+    color:#2f3e46;
+}
 
 /* ---------- Buscador ---------- */
 .buscador{
@@ -85,13 +105,19 @@
     margin-bottom:20px;
     box-sizing:border-box;
 }
+
 .buscador:focus{
     outline:none;
     border-color:#58c69d;
     box-shadow:0 0 8px rgba(88,198,157,.25);
 }
 
-.mensaje{ text-align:center; color:#777; padding:40px; }
+.mensaje{
+    text-align:center;
+    color:#777;
+    padding:40px;
+}
+
 .mensaje.error{ color:#e74c3c; }
 
 /* ---------- Tabla ---------- */
@@ -102,7 +128,11 @@
     box-shadow:0 4px 15px rgba(0,0,0,.07);
 }
 
-table{ width:100%; border-collapse:collapse; min-width:800px; }
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:800px;
+}
 
 th{
     text-align:left;
@@ -114,12 +144,30 @@ th{
     letter-spacing:.5px;
 }
 
-td{ padding:14px 16px; border-top:1px solid #eee; vertical-align:middle; }
+td{
+    padding:14px 16px;
+    border-top:1px solid #eee;
+    vertical-align:middle;
+}
+
 tr.inactivo td{ opacity:.6; }
 
-.persona{ display:flex; align-items:center; gap:12px; }
-.persona small{ display:block; color:#888; }
-.vos{ color:#58c69d; font-size:.85rem; margin-left:5px; }
+.persona{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.persona small{
+    display:block;
+    color:#888;
+}
+
+.vos{
+    color:#58c69d;
+    font-size:.85rem;
+    margin-left:5px;
+}
 
 .avatar{
     width:38px;
@@ -132,11 +180,18 @@ tr.inactivo td{ opacity:.6; }
     font-weight:bold;
     flex-shrink:0;
 }
+
 .avatar.cliente{ background:#3498db; }
 .avatar.empleada{ background:#58c69d; }
 .avatar.admin{ background:#8e44ad; }
 
-.badge{ padding:4px 12px; border-radius:20px; font-size:.8rem; font-weight:600; }
+.badge{
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:.8rem;
+    font-weight:600;
+}
+
 .badge.cliente{ background:#e8f2fb; color:#2c7ab8; }
 .badge.empleada{ background:#e8f8f1; color:#2e9a72; }
 .badge.admin{ background:#f3eaf8; color:#7d3c98; }
@@ -145,7 +200,10 @@ tr.inactivo td{ opacity:.6; }
 .estado.on{ color:#2e9a72; }
 .estado.off{ color:#e67e22; }
 
-.col-acciones{ text-align:right; white-space:nowrap; }
+.col-acciones{
+    text-align:right;
+    white-space:nowrap;
+}
 
 .btn{
     border:none;
@@ -156,13 +214,63 @@ tr.inactivo td{ opacity:.6; }
     margin-left:6px;
     color:white;
 }
+
 .btn.ver{ background:#ecf0f1; color:#333; }
 .btn.desactivar{ background:#f39c12; }
 .btn.activar{ background:#58c69d; }
 .btn.eliminar{ background:#e74c3c; }
+
 .btn:hover{ filter:brightness(.92); }
 
 @media(max-width:768px){
     .navbar{ padding:15px 20px; }
     .encabezado{ flex-direction:column; align-items:flex-start; }
+}
+
+/* ---------- Gráfico de solicitudes por mes ---------- */
+.tarjeta-grafico{
+    background:white;
+    border-radius:12px;
+    padding:20px 25px;
+    box-shadow:0 4px 15px rgba(0,0,0,.07);
+    margin-bottom:25px;
+}
+
+.grafico-encabezado{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:15px;
+}
+
+.grafico-encabezado h2{ margin:0 0 4px; color:#2f3e46; font-size:1.25rem; }
+.grafico-encabezado p{ margin:0; color:#888; font-size:.9rem; }
+
+.grafico-resumen{
+    display:flex;
+    flex-wrap:wrap;
+    gap:25px;
+    margin:15px 0;
+    color:#666;
+    font-size:.9rem;
+}
+
+.numero-chico{ font-size:1.3rem; font-weight:bold; color:#2f3e46; margin-right:4px; }
+
+.contenedor-grafico{
+    position:relative;
+    height:300px;
+}
+
+.contenedor-grafico.oculto{ display:none; }
+
+.cargando-grafico{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0;
+    color:#777;
+    background:rgba(255,255,255,.8);
 }

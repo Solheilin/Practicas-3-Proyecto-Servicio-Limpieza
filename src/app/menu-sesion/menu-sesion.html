@@ -1,6 +1,6 @@
 <div class="menu">
   @if (verificando()) {
-
+    <!-- Mientras Firebase revisa la sesión no mostramos nada, para que no "parpadee" -->
   } @else if (usuario(); as u) {
 
     @switch (u.tipo) {
@@ -8,14 +8,19 @@
         <a routerLink="/solicitud-servicio">Solicitar servicio</a>
         <a routerLink="/mis-solicitudes">Mis solicitudes</a>
       }
-           @case ('empleada') {
+      @case ('empleada') {
         <a routerLink="/solicitudes">Ver trabajos</a>
         <a routerLink="/perfil-empleada">Mi perfil</a>
       }
       @case ('admin') { <a routerLink="/admin">Administrar usuarios</a> }
     }
 
-    <a routerLink="/chats">💬 Mensajes</a>
+    <a routerLink="/chats" class="link-mensajes" [class.con-nuevos]="noLeidos() > 0">
+      💬 Mensajes
+      @if (noLeidos() > 0) {
+        <span class="contador">({{ noLeidos() }})</span>
+      }
+    </a>
 
     <div class="usuario">
       <span class="avatar">{{ inicial() }}</span>

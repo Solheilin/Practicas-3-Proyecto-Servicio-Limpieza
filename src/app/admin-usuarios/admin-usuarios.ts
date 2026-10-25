@@ -1,10 +1,17 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import Swal from 'sweetalert2';
 import { MenuSesion } from '../menu-sesion/menu-sesion';
 import { AuthService, TipoUsuario } from '../services/auth';
 import { AdminUsuariosService, UsuarioAdmin } from '../services/admin-usuarios';
+import { Rechazo, SolicitudesApiService } from '../services/solicitudes-api';
+import { forkJoin } from 'rxjs';
+import { Solicitud } from '../services/solicitudes';
+import { Chart, registerables } from 'chart.js';
+
+// Registra todos los tipos de gráfico de Chart.js (líneas, barras, etc.)
+Chart.register(...registerables);
 
 type Filtro = 'todos' | TipoUsuario | 'inactivos';
 
@@ -14,9 +21,21 @@ type Filtro = 'todos' | TipoUsuario | 'inactivos';
   templateUrl: './admin-usuarios.html',
   styleUrl: './admin-usuarios.css',
 })
-export class AdminUsuarios implements OnInit {
+export class AdminUsuarios implements OnInit, AfterViewInit, OnDestroy {
   private adminService = inject(AdminUsuariosService);
   private auth = inject(AuthService);
+  private solicitudesApi = inject(SolicitudesApiService);
+
+  // ---------- Gráfico: solicitudes por mes ----------
+  @ViewChild('graficoMeses') graficoMeses?: ElementRef<HTMLCanvasElement>;
+  private grafico?: Chart;
+  private solicitudes: Solicitud[] = [];
+  private rechazos: Rechazo[] = [];
+  private vistaLista = false;
+
+  cargandoGrafico = signal(true);
+  errorGrafico = signal('');
+  resumenGrafico = signal({ total: 0, finalizadas: 0, rechazados: 0, mejorMes: '—', mejorCantidad: 0 });
 
   usuarios = signal<UsuarioAdmin[]>([]);
   cargando = signal(true);
@@ -62,6 +81,144 @@ export class AdminUsuarios implements OnInit {
 
   ngOnInit() {
     this.cargar();
+    this.cargarEstadisticas();
+  }
+
+  ngAfterViewInit() {
+    this.vistaLista = true;
+    this.dibujarGrafico();
+  }
+
+  ngOnDestroy() {
+    this.grafico?.destroy();
+  }
+
+  /**
+   * Pide al backend, en paralelo:
+   *  - GET /api/solicitudes          → todas las solicitudes
+   *  - GET /api/solicitudes/rechazos → el historial de rechazos
+   */
+  cargarEstadisticas() {
+    this.cargandoGrafico.set(true);
+    this.errorGrafico.set('');
+
+    forkJoin({
+      solicitudes: this.solicitudesApi.listarTodas(),
+      rechazos: this.solicitudesApi.listarRechazos(),
+    }).subscribe({
+      next: ({ solicitudes, rechazos }) => {
+        this.solicitudes = solicitudes;
+        this.rechazos = rechazos;
+        this.cargandoGrafico.set(false);
+        this.dibujarGrafico();
+      },
+      error: e => {
+        this.errorGrafico.set(this.solicitudesApi.mensajeDeError(e));
+        this.cargandoGrafico.set(false);
+      },
+    });
+  }
+
+  /**
+   * Arma el gráfico de líneas con los últimos 12 meses:
+   *  - Solicitudes creadas en cada mes
+   *  - Solicitudes finalizadas en cada mes
+   *  - Pedidos rechazados por empleadas en cada mes
+   */
+  private dibujarGrafico() {
+    const canvas = this.graficoMeses?.nativeElement;
+    if (!canvas || !this.vistaLista || this.cargandoGrafico()) return;
+
+    // Los últimos 12 meses, del más viejo al actual
+    const hoy = new Date();
+    const meses = Array.from({ length: 12 }, (_, i) => new Date(hoy.getFullYear(), hoy.getMonth() - 11 + i, 1));
+    const clave = (f: Date) => `${f.getFullYear()}-${f.getMonth()}`;
+
+    const creadas = new Map(meses.map(m => [clave(m), 0]));
+    const finalizadas = new Map(meses.map(m => [clave(m), 0]));
+    const rechazados = new Map(meses.map(m => [clave(m), 0]));
+
+    for (const s of this.solicitudes) {
+      if (s.creada && creadas.has(clave(s.creada))) {
+        creadas.set(clave(s.creada), creadas.get(clave(s.creada))! + 1);
+      }
+      if (s.finalizadaEn) {
+        const f = new Date(s.finalizadaEn);
+        if (finalizadas.has(clave(f))) finalizadas.set(clave(f), finalizadas.get(clave(f))! + 1);
+      }
+    }
+
+    for (const r of this.rechazos) {
+      if (r.rechazadaEn) {
+        const f = new Date(r.rechazadaEn);
+        if (rechazados.has(clave(f))) rechazados.set(clave(f), rechazados.get(clave(f))! + 1);
+      }
+    }
+
+    const etiquetas = meses.map(m => m.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }));
+    const datosCreadas = meses.map(m => creadas.get(clave(m))!);
+    const datosFinalizadas = meses.map(m => finalizadas.get(clave(m))!);
+    const datosRechazados = meses.map(m => rechazados.get(clave(m))!);
+
+    // Resumen que se muestra arriba del gráfico
+    const maximo = Math.max(...datosCreadas);
+    this.resumenGrafico.set({
+      total: datosCreadas.reduce((a, b) => a + b, 0),
+      finalizadas: datosFinalizadas.reduce((a, b) => a + b, 0),
+      rechazados: datosRechazados.reduce((a, b) => a + b, 0),
+      mejorMes: maximo > 0 ? etiquetas[datosCreadas.indexOf(maximo)] : '—',
+      mejorCantidad: maximo,
+    });
+
+    this.grafico?.destroy(); // si ya había uno, se reemplaza
+    this.grafico = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: etiquetas,
+        datasets: [
+          {
+            label: 'Solicitudes creadas',
+            data: datosCreadas,
+            borderColor: '#58c69d',
+            backgroundColor: 'rgba(88, 198, 157, 0.15)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+          },
+          {
+            label: 'Trabajos finalizados',
+            data: datosFinalizadas,
+            borderColor: '#e74c3c',
+            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+            fill: false,
+            tension: 0.35,
+            pointRadius: 4,
+          },
+          {
+            label: 'Pedidos rechazados',
+            data: datosRechazados,
+            borderColor: '#f39c12',
+            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+            borderDash: [6, 4],        // línea punteada para diferenciarla
+            fill: false,
+            tension: 0.35,
+            pointRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y}` } },
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Cantidad' } },
+        },
+      },
+    });
   }
 
   async cargar() {
@@ -99,6 +256,7 @@ export class AdminUsuarios implements OnInit {
 
     try {
       await this.adminService.cambiarEstado(u.uid, activar);
+      // Actualizamos la lista sin volver a pedir todo a Firestore
       this.usuarios.update(lista => lista.map(x => (x.uid === u.uid ? { ...x, activo: activar } : x)));
       this.toast(activar ? 'Cuenta activada' : 'Cuenta desactivada');
     } catch (e) {

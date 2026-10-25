@@ -32,10 +32,11 @@ export interface Solicitud {
   empleadaNombre?: string;
   creada?: Date;
     resenada?: boolean;
+    finalizadaEn?: string;
 }
 
 /** Lo que completa el cliente en el formulario. */
-export type DatosSolicitud = Omit<Solicitud, 'id' | 'clienteUid' | 'estado' | 'empleadaUid' | 'empleadaNombre' | 'creada' | 'resenada'>;
+export type DatosSolicitud = Omit<Solicitud, 'id' | 'clienteUid' | 'estado' | 'empleadaUid' | 'empleadaNombre' | 'creada' | 'resenada' |'finalizadaEn'>;
 
 const COLECCION = 'solicitudes';
 

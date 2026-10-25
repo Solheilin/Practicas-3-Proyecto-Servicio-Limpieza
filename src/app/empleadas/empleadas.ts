@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Pipe, PipeTransform } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
+import { MenuSesion } from '../menu-sesion/menu-sesion';
 import { descargarCsv, nombreConFecha } from '../services/csv';
 
 /** Cómo es cada profesional del catálogo */
@@ -15,15 +16,60 @@ interface Profesional {
   comentario: string;
 }
 
+/**
+ * PIPE PROPIO: filtra una lista según un texto de búsqueda.
+ *
+ * Uso en el HTML:
+ *   @for (p of profesionales | filtrar: textoBusqueda : camposBusqueda; track $index) { ... }
+ *
+ *   - lista  → lo que está a la izquierda del |
+ *   - texto  → lo que escribió el usuario
+ *   - campos → (opcional) en qué propiedades buscar. Si no se indica, busca en todas.
+ *
+ * No distingue mayúsculas ni acentos: "ninera" encuentra "Niñera".
+ */
+@Pipe({
+  name: 'filtrar',
+})
+export class FiltrarPipe implements PipeTransform {
+
+  transform<T>(lista: T[] | null | undefined, texto: string | null | undefined, campos: (keyof T)[] = []): T[] {
+    if (!lista) return [];
+
+    const buscado = normalizar(texto ?? '');
+    if (!buscado) return lista; // sin texto, se muestra todo
+
+    return lista.filter(item => {
+      const valores = campos.length
+        ? campos.map(campo => item[campo])
+        : Object.values(item as object);
+
+      return valores.some(valor => normalizar(String(valor ?? '')).includes(buscado));
+    });
+  }
+}
+
+/** Pasa a minúsculas y saca los acentos, para comparar sin importar cómo se escribió */
+function normalizar(texto: string): string {
+  return texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
 @Component({
   selector: 'app-empleadas',
-  imports: [FormsModule, RouterLink, TitleCasePipe],
+  imports: [MenuSesion, FormsModule, RouterLink, TitleCasePipe, FiltrarPipe],
   templateUrl: './empleadas.html',
   styleUrl: './empleadas.css',
 })
 export class Empleadas {
 
   textoBusqueda = '';
+
+  /** En qué campos busca el pipe "filtrar" */
+  camposBusqueda: (keyof Profesional)[] = ['nombre', 'oficio', 'zona'];
 
   profesionales: Profesional[] = [
     {
@@ -82,10 +128,9 @@ export class Empleadas {
     }
   ];
 
+  /** Para el CSV: se reutiliza el mismo pipe desde el código */
   get profesionalesFiltrados(): Profesional[] {
-    return this.profesionales.filter((p: Profesional) =>
-      p.nombre.toLowerCase().includes(this.textoBusqueda.toLowerCase())
-    );
+    return new FiltrarPipe().transform(this.profesionales, this.textoBusqueda, this.camposBusqueda);
   }
 
   /** Descarga el catálogo de profesionales (lo que se ve en pantalla, con la búsqueda aplicada) */

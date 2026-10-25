@@ -20,6 +20,36 @@
     </button>
   </div>
 
+  <!-- Gráfico: solicitudes por mes (datos de MySQL) -->
+  <section class="tarjeta-grafico">
+    <div class="grafico-encabezado">
+      <div>
+        <h2>📈 Solicitudes por mes</h2>
+        <p>Últimos 12 meses · datos de la base MySQL</p>
+      </div>
+      <button type="button" class="btn-recargar" (click)="cargarEstadisticas()" [disabled]="cargandoGrafico()">↻</button>
+    </div>
+
+    <div class="grafico-resumen">
+      <div><span class="numero-chico">{{ resumenGrafico().total }}</span> solicitudes creadas</div>
+      <div><span class="numero-chico">{{ resumenGrafico().finalizadas }}</span> trabajos finalizados</div>
+      <div><span class="numero-chico">{{ resumenGrafico().rechazados }}</span> pedidos rechazados</div>
+      <div><span class="numero-chico">{{ resumenGrafico().mejorMes }}</span> mes con más pedidos ({{ resumenGrafico().mejorCantidad }})</div>
+    </div>
+
+    @if (errorGrafico()) {
+      <p class="mensaje error">{{ errorGrafico() }}</p>
+    }
+
+    <!-- El canvas siempre está en la página para que Chart.js pueda dibujar sobre él -->
+    <div class="contenedor-grafico" [class.oculto]="!!errorGrafico()">
+      <canvas #graficoMeses></canvas>
+      @if (cargandoGrafico()) {
+        <p class="cargando-grafico">Cargando estadísticas...</p>
+      }
+    </div>
+  </section>
+
   <!-- Tarjetas con totales (también funcionan como filtro) -->
   <section class="tarjetas">
     <button type="button" class="tarjeta" [class.activa]="filtro() === 'todos'" (click)="filtro.set('todos')">

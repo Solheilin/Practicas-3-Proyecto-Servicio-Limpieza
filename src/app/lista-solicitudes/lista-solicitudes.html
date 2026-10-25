@@ -171,8 +171,13 @@
                         @if (!t.finalizado) {
                             <button type="button" class="btn-finalizar"
                                     (click)="finalizarTrabajo(t)"
-                                    [disabled]="finalizando() !== null">
+                                    [disabled]="finalizando() !== null || rechazando() !== null">
                                 {{ finalizando() === t.id ? 'Finalizando...' : '✅ Finalizar trabajo' }}
+                            </button>
+                            <button type="button" class="btn-rechazar"
+                                    (click)="rechazarTrabajo(t)"
+                                    [disabled]="finalizando() !== null || rechazando() !== null">
+                                {{ rechazando() === t.id ? 'Rechazando...' : '↩️ Rechazar pedido' }}
                             </button>
                         }
                     </div>

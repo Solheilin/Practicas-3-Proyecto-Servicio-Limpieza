@@ -56,7 +56,7 @@
 
     <div class="cards">
 
-        @for (profesional of profesionalesFiltrados; track profesional.nombre) {
+              @for (profesional of profesionales | filtrar: textoBusqueda : camposBusqueda; track $index) {
 
             <div class="card">
 

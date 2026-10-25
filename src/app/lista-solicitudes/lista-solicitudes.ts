@@ -57,8 +57,9 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
   cargandoMios = signal(true);
   errorMios = signal('');
   filtro = signal<FiltroHistorial>('enCurso');
-  /** id del trabajo que se está finalizando (para deshabilitar su botón) */
+  /** id del trabajo que se está finalizando o rechazando (para deshabilitar sus botones) */
   finalizando = signal<string | null>(null);
+  rechazando = signal<string | null>(null);
 
   private hoy = new Date().toISOString().slice(0, 10); // 'aaaa-mm-dd'
 
@@ -259,12 +260,74 @@ export class ListaSolicitudesComponent implements OnInit, OnDestroy {
       error: e => {
         // 404: es un trabajo viejo que estaba en Firebase y no existe en MySQL → se finaliza solo en el chat
         // 409 "ya estaba finalizado": se sincroniza el chat igual
-                if ((e?.status === 404 && e?.error?.error === 'La solicitud no existe.') || e?.status === 409) {
+        if ((e?.status === 404 && e?.error?.error === 'La solicitud no existe.') || e?.status === 409) {
           marcarEnChat();
           return;
         }
         this.finalizando.set(null);
         Swal.fire({ icon: 'error', title: 'No se pudo finalizar', text: this.api.mensajeDeError(e), confirmButtonColor: '#e74c3c' });
+      },
+    });
+  }
+
+  /**
+   * La empleada RECHAZA un trabajo que había tomado:
+   *  1) en MySQL vuelve a "pendiente" y sin empleada (POST /api/solicitudes/:id/rechazar)
+   *  2) se borra el chat con el cliente, para que la próxima empleada empiece de cero
+   * Así el trabajo reaparece en "Disponibles" y lo puede tomar otra empleada.
+   */
+  async rechazarTrabajo(t: Trabajo) {
+    const r = await Swal.fire({
+      title: '¿Rechazar este pedido?',
+      html: `El trabajo de <b>${t.cliente}</b> del <b>${t.fecha.split('-').reverse().join('/')}</b>
+             va a volver a la lista de trabajos disponibles para que lo tome otra empleada.<br><br>
+             <small>Se va a borrar el chat que tenías con el cliente.</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, rechazar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#f39c12',
+    });
+    if (!r.isConfirmed) return;
+
+    this.rechazando.set(t.id);
+
+    this.api.rechazar(t.id).subscribe({
+      next: async () => {
+        try {
+          await this.chatService.eliminarChat(t.id);
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Pedido rechazado. Volvió a la lista de disponibles.', showConfirmButton: false, timer: 3000 });
+        } catch (e) {
+          console.error(e);
+          Swal.fire({ icon: 'warning', title: 'Pedido rechazado', text: 'El trabajo volvió a la lista, pero no se pudo borrar el chat. Revisá las reglas de Firestore.', confirmButtonColor: '#f39c12' });
+        } finally {
+          this.rechazando.set(null);
+          this.cargar(false); // vuelve a aparecer en "Disponibles"
+        }
+      },
+            error: async e => {
+        // Trabajo viejo: su chat existe en Firebase, pero la solicitud ya no está en MySQL.
+        // No hay nada que devolver a "Disponibles", así que solo se quita de la lista borrando el chat.
+        if (e?.status === 404 && e?.error?.error === 'La solicitud no existe.') {
+          try {
+            await this.chatService.eliminarChat(t.id);
+            Swal.fire({
+              icon: 'info',
+              title: 'Trabajo quitado de tu lista',
+              text: 'Era un trabajo anterior que ya no existe en la base de datos, así que se quitó de tus trabajos.',
+              confirmButtonColor: '#58c69d',
+            });
+          } catch (err) {
+            console.error(err);
+            Swal.fire({ icon: 'error', title: 'No se pudo quitar', text: 'Revisá las reglas de Firestore.', confirmButtonColor: '#e74c3c' });
+          } finally {
+            this.rechazando.set(null);
+          }
+          return;
+        }
+
+        this.rechazando.set(null);
+        Swal.fire({ icon: 'error', title: 'No se pudo rechazar', text: this.api.mensajeDeError(e), confirmButtonColor: '#e74c3c' });
       },
     });
   }

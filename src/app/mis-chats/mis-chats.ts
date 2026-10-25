@@ -68,6 +68,11 @@ export class MisChats implements OnInit, OnDestroy {
     this.desuscripciones.forEach(d => d());
   }
 
+  /** true si el chat tiene mensajes que el usuario todavía no leyó */
+  noLeido(chat: Chat) {
+    return this.chatService.noLeido(chat, this.usuario()?.uid);
+  }
+
   otraPersona(chat: Chat) {
     return this.chatService.otraPersona(chat, this.usuario()?.uid);
   }

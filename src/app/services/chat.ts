@@ -1,10 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, effect, inject, signal, untracked } from '@angular/core';
+import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 import {
-  collection, doc, query, where, orderBy, onSnapshot, writeBatch, setDoc,
+  collection, doc, query, where, orderBy, onSnapshot, writeBatch, setDoc, getDocs, updateDoc,
   serverTimestamp, Timestamp, Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Usuario } from './auth';
+import { AuthService, Usuario } from './auth';
 import { Solicitud, serviciosDe } from './solicitudes';
 
 export interface Chat {
@@ -27,6 +29,8 @@ export interface Chat {
   ultimoMensajeFecha?: Date;
   /** true cuando la empleada marcó el trabajo como terminado */
   finalizado?: boolean;
+  /** Última vez que cada participante abrió el chat: { uid: fecha } */
+  leido?: Record<string, Date | undefined>;
 }
 
 export interface Mensaje {
@@ -42,13 +46,97 @@ function aFecha(valor: any): Date | undefined {
 }
 
 function aChat(id: string, datos: any): Chat {
-  return { ...datos, id, ultimoMensajeFecha: aFecha(datos.ultimoMensajeFecha) };
+  const leido: Record<string, Date | undefined> = {};
+  for (const [uid, fecha] of Object.entries(datos.leido ?? {})) leido[uid] = aFecha(fecha);
+  return { ...datos, id, ultimoMensajeFecha: aFecha(datos.ultimoMensajeFecha), leido };
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
+  // ---------- Avisos de mensajes nuevos ----------
+
+  /** Cantidad de chats con mensajes sin leer (se muestra en el menú) */
+  noLeidos = signal(0);
+
+  private desuscribirAvisos?: Unsubscribe;
+  /** Fecha del último mensaje de cada chat, para detectar cuándo llega uno nuevo */
+  private ultimasFechas = new Map<string, number>();
+
+  constructor() {
+    // Cada vez que cambia el usuario logueado, se empiezan a escuchar SUS chats
+    effect(() => {
+      const usuario = this.auth.usuarioActual();
+      untracked(() => this.escucharAvisos(usuario));
+    });
+  }
+
+  /**
+   * Escucha en tiempo real los chats del usuario:
+   *  - cuenta cuántos tienen mensajes sin leer
+   *  - muestra un cartelito cuando llega un mensaje nuevo
+   */
+  private escucharAvisos(usuario: Usuario | null) {
+    this.desuscribirAvisos?.();
+    this.noLeidos.set(0);
+    this.ultimasFechas.clear();
+    if (!usuario || usuario.tipo === 'admin') return; // el admin solo mira, no chatea
+
+    let primeraCarga = true;
+
+    this.desuscribirAvisos = this.escucharMisChats(usuario, chats => {
+      this.noLeidos.set(chats.filter(c => this.noLeido(c, usuario.uid)).length);
+
+      for (const c of chats) {
+        const fecha = c.ultimoMensajeFecha?.getTime() ?? 0;
+        const anterior = this.ultimasFechas.get(c.id);
+        this.ultimasFechas.set(c.id, fecha);
+
+        const esNuevo = !primeraCarga && (anterior === undefined || fecha > anterior);
+        const loEscribioOtro = !!c.ultimoMensaje && c.ultimoAutorUid !== usuario.uid;
+        const estaMirandoEseChat = this.router.url.startsWith(`/chats/${c.id}`);
+
+        if (esNuevo && loEscribioOtro && !estaMirandoEseChat) {
+          this.mostrarAviso(c, usuario.uid);
+        }
+      }
+      primeraCarga = false; // al entrar no se avisa de los mensajes viejos
+    }, e => console.error('[Avisos de chat]', e));
+  }
+
+  private mostrarAviso(chat: Chat, miUid: string) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: `💬 Nuevo mensaje de ${this.otraPersona(chat, miUid)}`,
+      text: chat.ultimoMensaje.length > 60 ? chat.ultimoMensaje.slice(0, 60) + '…' : chat.ultimoMensaje,
+      showConfirmButton: true,
+      confirmButtonText: 'Ver',
+      confirmButtonColor: '#58c69d',
+            showCloseButton: true,
+    }).then(r => {
+      if (r.isConfirmed) this.router.navigate(['/chats', chat.id]);
+    });
+  }
+
+  /** true si el último mensaje lo escribió la otra persona y todavía no abrí el chat desde entonces */
+  noLeido(chat: Chat, miUid?: string): boolean {
+    if (!miUid || !chat.ultimoMensaje || chat.ultimoAutorUid === miUid) return false;
+    const ultimo = chat.ultimoMensajeFecha?.getTime() ?? 0;
+    const leidoHasta = chat.leido?.[miUid]?.getTime() ?? 0;
+    return ultimo > leidoHasta;
+  }
+
+  /** Guarda que el usuario abrió el chat ahora (así deja de figurar como no leído) */
+  async marcarLeido(chatId: string, uid: string) {
+    await updateDoc(doc(db, 'chats', chatId), { [`leido.${uid}`]: serverTimestamp() });
+  }
+
 
   /**
    * Crea el chat entre la empleada y el cliente cuando la empleada toma un trabajo.
@@ -162,6 +250,18 @@ export class ChatService {
       ultimoMensajeFecha: serverTimestamp(),
     });
 
+    await lote.commit();
+  }
+
+  /**
+   * Borra el chat y todos sus mensajes (cuando la empleada rechaza el trabajo).
+   * Así la próxima empleada que lo tome empieza una conversación nueva.
+   */
+  async eliminarChat(chatId: string) {
+    const mensajes = await getDocs(collection(db, 'chats', chatId, 'mensajes'));
+    const lote = writeBatch(db);
+    mensajes.docs.forEach(m => lote.delete(m.ref));
+    lote.delete(doc(db, 'chats', chatId));
     await lote.commit();
   }
 

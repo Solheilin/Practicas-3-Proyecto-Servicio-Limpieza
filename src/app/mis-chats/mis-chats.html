@@ -52,7 +52,7 @@
       </div>
     } @else {
       @for (chat of chats(); track chat.id) {
-        <a class="chat-item" [class.finalizado]="chat.finalizado" [routerLink]="['/chats', chat.id]">
+        <a class="chat-item" [class.finalizado]="chat.finalizado" [class.no-leido]="noLeido(chat)" [routerLink]="['/chats', chat.id]">
           <span class="avatar">{{ inicial(chat) }}</span>
 
           <div class="info">
@@ -64,7 +64,10 @@
               <small>{{ chat.ultimoMensajeFecha | date:'dd/MM HH:mm' }}</small>
             </div>
             <span class="detalle">{{ chat.resumen.servicios }} · 📅 {{ chat.resumen.fecha | date:'dd/MM/yyyy' }}</span>
-            <span class="preview">{{ vistaPrevia(chat) }}</span>
+            <span class="preview">
+              @if (noLeido(chat)) { <span class="punto-nuevo" title="Mensaje nuevo"></span> }
+              {{ vistaPrevia(chat) }}
+            </span>
           </div>
         </a>
       }

@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../services/auth';
+import { ChatService } from '../services/chat';
 
 /**
  * Menú de la barra de arriba. Se usa en todas las páginas con <app-menu-sesion />
@@ -17,6 +18,10 @@ import { AuthService } from '../services/auth';
 export class MenuSesion {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private chatService = inject(ChatService);
+
+  /** Cantidad de chats con mensajes sin leer */
+  noLeidos = this.chatService.noLeidos;
 
   usuario = this.auth.usuarioActual;
   verificando = this.auth.verificandoSesion;
